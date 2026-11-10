@@ -28,6 +28,9 @@ jobs:
           GRAPH_VERSION: ${{ secrets.GRAPH_VERSION }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
         run: python nube/ciclo.py
       - name: Guardar calendario y metricas
         run: |
