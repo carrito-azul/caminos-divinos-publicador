@@ -3,16 +3,20 @@
 1. Pasa a calendario.csv los videos nuevos que la PC dejo en cola/ y decide su hora.
 2. Publica en Instagram lo que ya llego a su hora: Instagram descarga el video desde GitHub.
 3. Borra de GitHub el video ya publicado.
-4. Mide cada Reel a las 24 h y, con cada dato nuevo, vuelve a decidir la hora de lo pendiente.
-5. Una vez al dia guarda las metricas de todas las publicaciones en historico.csv.
+4. Mide cada Reel a 1 h, 3 h, 24 h, 72 h y 7 dias (mediciones.csv) y, con el dato de 24 h, vuelve a decidir
+   la hora de lo pendiente.
+5. Une cada medicion con la ficha creativa del video (fichas/) y escribe rendimiento.md: lo que CODE ART lee
+   antes de escribir el siguiente guion.
+6. Una vez al dia guarda las metricas de todas las publicaciones en historico.csv.
 """
-import csv, json, os, random, time, urllib.parse, urllib.request
+import csv, json, os, random, statistics, time, urllib.parse, urllib.request
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 TZ = ZoneInfo("America/Bogota")
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAL, HIST, LOG, COLA = (os.path.join(RAIZ, n) for n in ("calendario.csv", "historico.csv", "registro.log", "cola"))
+MED, FICHAS, REND = (os.path.join(RAIZ, n) for n in ("mediciones.csv", "fichas", "rendimiento.md"))
 
 # ---------- Configuracion ----------
 FRANJAS = [(7, 0), (12, 30), (18, 0), (20, 0), (22, 30)]   # franjas que se prueban (hora Colombia)
@@ -20,6 +24,8 @@ EXPLORACION = 0.25          # 1 de cada 4 veces prueba otra franja distinta a la
 SEPARACION_MIN_HORAS = 20   # minimo entre publicaciones
 MAX_POR_DIA = 1
 ANTICIPACION_MIN_HORAS = 1  # un video nuevo no se publica antes de 1 h
+HITOS = [(1, "1h"), (3, "3h"), (24, "24h"), (72, "72h"), (168, "7d")]  # cuando se mide cada Reel
+DESFASE_MAX_MIN = 45        # si salio mas tarde que esto respecto a su franja, no cuenta para aprender horarios
 # -----------------------------------
 
 COLS = ["id", "fecha_hora", "carpeta", "asset", "tema", "gancho", "aprobado", "estado", "ig_media_id", "permalink",
@@ -104,18 +110,28 @@ def guardar_cal(filas):
             w.writerow({k: r.get(k, "") for k in COLS})
 
 
+def salio_a_tiempo(r):
+    try:
+        prog = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M")
+        real = datetime.strptime(r.get("publicado_real") or r["fecha_hora"], "%Y-%m-%d %H:%M")
+    except (KeyError, ValueError):
+        return False
+    return abs((real - prog).total_seconds()) <= DESFASE_MAX_MIN * 60
+
+
 def rendimiento(filas):
     datos = {}
     for r in filas:
-        if r.get("views_24h") and r.get("franja"):
+        if r.get("views_24h") and r.get("franja") and salio_a_tiempo(r):
             datos.setdefault(r["franja"], []).append(float(r["views_24h"]))
     return {k: sum(v) / len(v) for k, v in datos.items()}, {k: len(v) for k, v in datos.items()}
 
 
 def elegir_hora(filas, desde, excluir=None):
+    excluir = excluir if isinstance(excluir, (list, tuple)) else [excluir]
     ocupados, ultima = {}, None
     for r in filas:
-        if r is excluir or r["estado"] not in ("pendiente", "publicado", "publicando") or not r.get("fecha_hora"):
+        if any(r is x for x in excluir) or r["estado"] not in ("pendiente", "publicado", "publicando") or not r.get("fecha_hora"):
             continue
         ocupados[r["fecha_hora"][:10]] = ocupados.get(r["fecha_hora"][:10], 0) + 1
         t = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M")
@@ -124,7 +140,8 @@ def elegir_hora(filas, desde, excluir=None):
         desde = max(desde, ultima + timedelta(hours=SEPARACION_MIN_HORAS))
     prom, cuenta = rendimiento(filas)
     etiquetas = [f"{h:02d}:{m:02d}" for h, m in FRANJAS]
-    reservadas = {r.get("franja") for r in filas if r is not excluir and r["estado"] in ("pendiente", "publicado")}
+    reservadas = {r.get("franja") for r in filas
+                  if not any(r is x for x in excluir) and r["estado"] in ("pendiente", "publicado")}
     sin_datos = [e for e in etiquetas if cuenta.get(e, 0) == 0 and e not in reservadas]
     if sin_datos:
         objetivo, motivo = sin_datos, "exploracion: franja aun sin datos"
@@ -164,6 +181,8 @@ def tomar_cola(filas):
                           "detectado": d.get("detectado", ""), "fecha_hora": t.strftime("%Y-%m-%d %H:%M"),
                           "franja": e, "motivo_hora": motivo})
             log(f"Agendado {d['carpeta']} -> {t:%Y-%m-%d %H:%M} ({motivo})")
+        if d.get("ficha"):
+            guardar_ficha(d["carpeta"], d["ficha"])
         os.makedirs(os.path.join(COLA, "textos"), exist_ok=True)
         os.replace(ruta, os.path.join(COLA, "textos", nombre))  # se conserva el texto para publicar
         cambio = True
@@ -220,30 +239,87 @@ def publicar_vencidos(filas):
     return False
 
 
-def medir_24h(filas):
-    cambio = False
+def guardar_ficha(carpeta, ficha):
+    os.makedirs(FICHAS, exist_ok=True)
+    with open(os.path.join(FICHAS, f"{carpeta}.json"), "w", encoding="utf-8") as f:
+        json.dump(ficha, f, ensure_ascii=False, indent=1)
+
+
+COLS_MED = ["carpeta", "ig_media_id", "hito", "fecha", "horas", "views", "reach", "likes", "comments", "saved",
+            "shares", "total_interactions", "avg_watch_s", "skip_rate", "fuente"]
+
+
+def leer_med():
+    if not os.path.exists(MED):
+        return []
+    with open(MED, encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def insights_reel(mid):
+    met = ["views", "reach", "likes", "comments", "saved", "shares", "total_interactions",
+           "ig_reels_avg_watch_time", "reels_skip_rate"]
+    try:
+        datos = meta("GET", f"{mid}/insights", {"metric": ",".join(met)}).get("data", [])
+    except ErrorAPI:  # por si alguna metrica no esta disponible todavia
+        datos = meta("GET", f"{mid}/insights", {"metric": ",".join(met[:7])}).get("data", [])
+    return {d["name"]: d["values"][0]["value"] for d in datos if d.get("values")}
+
+
+def medir_hitos(filas):
+    """Mide cada Reel en sus hitos. Un hito que se paso de largo (PC o nube caidas) no se inventa: se salta,
+    salvo el de 24 h, que se acepta hasta las 48 h porque decide los horarios."""
+    hechos = {(m["carpeta"], m["hito"]) for m in leer_med()}
+    nuevas, cambio_24h = [], False
+    franjas_antes = rendimiento(filas)
     for r in filas:
-        if r["estado"] != "publicado" or r.get("views_24h") or not r.get("ig_media_id") or not r.get("publicado_real"):
+        if r["estado"] != "publicado" or not r.get("ig_media_id"):
             continue
-        if ahora() - datetime.strptime(r["publicado_real"], "%Y-%m-%d %H:%M") < timedelta(hours=24):
+        try:
+            t0 = datetime.strptime(r.get("publicado_real") or r["fecha_hora"], "%Y-%m-%d %H:%M")
+        except (KeyError, ValueError):
             continue
-        datos = meta("GET", f"{r['ig_media_id']}/insights",
-                     {"metric": "views,reach,reels_skip_rate,ig_reels_avg_watch_time"}).get("data", [])
-        v = {d["name"]: d["values"][0]["value"] for d in datos if d.get("values")}
-        r.update(views_24h=v.get("views", 0), reach_24h=v.get("reach", ""), skip_24h=v.get("reels_skip_rate", ""),
-                 watch_24h_s=round(v["ig_reels_avg_watch_time"] / 1000, 1) if "ig_reels_avg_watch_time" in v else "")
-        log(f"24 h de {r['carpeta']} ({r.get('franja')}): {r['views_24h']} vistas, salto {r['skip_24h']} %")
-        cambio = True
-    if cambio:  # con un dato nuevo, se vuelve a decidir la hora de lo pendiente que aun no esta cerca
-        for r in sorted([r for r in filas if r["estado"] == "pendiente"], key=lambda r: r["fecha_hora"]):
+        edad = (ahora() - t0).total_seconds() / 3600
+        for horas, hito in HITOS:
+            if (r["carpeta"], hito) in hechos or edad < horas:
+                continue
+            if edad > (horas * 2 if hito == "24h" else horas * 1.5):
+                continue
+            v = insights_reel(r["ig_media_id"])
+            watch = round(v["ig_reels_avg_watch_time"] / 1000, 1) if "ig_reels_avg_watch_time" in v else ""
+            nuevas.append({"carpeta": r["carpeta"], "ig_media_id": r["ig_media_id"], "hito": hito,
+                           "fecha": ahora().strftime("%Y-%m-%d %H:%M"), "horas": round(edad, 1),
+                           "views": v.get("views", ""), "reach": v.get("reach", ""), "likes": v.get("likes", ""),
+                           "comments": v.get("comments", ""), "saved": v.get("saved", ""),
+                           "shares": v.get("shares", ""), "total_interactions": v.get("total_interactions", ""),
+                           "avg_watch_s": watch, "skip_rate": v.get("reels_skip_rate", ""), "fuente": "api"})
+            log(f"Medicion {hito} de {r['carpeta']}: {v.get('views', 0)} vistas, salto {v.get('reels_skip_rate', '?')} %, "
+                f"{watch} s de media, {v.get('shares', 0)} compartidos")
+            if hito == "24h" and not r.get("views_24h"):
+                r.update(views_24h=v.get("views", 0), reach_24h=v.get("reach", ""),
+                         skip_24h=v.get("reels_skip_rate", ""), watch_24h_s=watch)
+                cambio_24h = True
+            break  # un hito por Reel y por ciclo
+    if nuevas:
+        nuevo = not os.path.exists(MED)
+        with open(MED, "a", encoding="utf-8-sig", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=COLS_MED)
+            if nuevo:
+                w.writeheader()
+            w.writerows(nuevas)
+    if cambio_24h and rendimiento(filas) != franjas_antes:
+        # el dato cambio lo que se sabe de los horarios: se vuelve a decidir la hora de lo pendiente (en orden;
+        # cada uno respeta a los ya decididos, no a los que vienen despues)
+        pend = sorted([r for r in filas if r["estado"] == "pendiente"], key=lambda r: r["fecha_hora"])
+        for i, r in enumerate(pend):
             if datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M") - ahora() < timedelta(hours=2):
                 continue
             antes = r["fecha_hora"]
-            t, e, motivo = elegir_hora(filas, ahora() + timedelta(hours=2), excluir=r)
+            t, e, motivo = elegir_hora(filas, ahora() + timedelta(hours=2), excluir=pend[i:])
             r.update(fecha_hora=t.strftime("%Y-%m-%d %H:%M"), franja=e, motivo_hora=motivo)
             if r["fecha_hora"] != antes:
                 log(f"Replanificado {r['carpeta']}: {antes} -> {r['fecha_hora']} ({motivo})")
-    return cambio
+    return cambio_24h
 
 
 def metricas_diarias():
@@ -396,19 +472,22 @@ def subir_shorts_pendientes(filas):
     return False
 
 
+from analisis import escribir_rendimiento  # noqa: E402  (lee calendario, mediciones y fichas)
+
+
 def main():
     filas = leer_cal()
-    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_24h):
+    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos):
         try:
             if paso(filas):
                 guardar_cal(filas)
         except Exception as e:
             log(f"ERROR en {paso.__name__}: {type(e).__name__}: {e}")
-    for diario in (metricas_diarias, metricas_youtube):
+    for diario in (metricas_diarias, metricas_youtube, escribir_rendimiento):
         try:
             diario()
         except Exception as e:
-            log(f"ERROR en {diario.__name__}: {e}")
+            log(f"ERROR en {diario.__name__}: {type(e).__name__}: {e}")
 
 
 if __name__ == "__main__":
