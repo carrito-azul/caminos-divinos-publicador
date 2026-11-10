@@ -23,8 +23,13 @@ ANTICIPACION_MIN_HORAS = 1  # un video nuevo no se publica antes de 1 h
 # -----------------------------------
 
 COLS = ["id", "fecha_hora", "carpeta", "asset", "tema", "gancho", "aprobado", "estado", "ig_media_id", "permalink",
-        "detectado", "franja", "motivo_hora", "publicado_real", "views_24h", "reach_24h", "skip_24h", "watch_24h_s"]
-ENV = {k: os.environ.get(k, "") for k in ("FB_PAGE_TOKEN", "IG_USER_ID", "GRAPH_VERSION", "GH_TOKEN", "GH_REPO")}
+        "detectado", "franja", "motivo_hora", "publicado_real", "views_24h", "reach_24h", "skip_24h", "watch_24h_s",
+        "yt_video_id", "yt_estado"]
+ENV = {k: os.environ.get(k, "") for k in ("FB_PAGE_TOKEN", "IG_USER_ID", "GRAPH_VERSION", "GH_TOKEN", "GH_REPO",
+                                          "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "YT_REFRESH_TOKEN")}
+HIST_YT = os.path.join(RAIZ, "historico_youtube.csv")
+# Se pone en True cuando YouTube apruebe la auditoria (antes, todo lo subido por API queda privado para siempre)
+YT_SUBIDA_ACTIVA = False
 
 
 def ahora():
@@ -172,19 +177,9 @@ def publicar(r):
         raise ErrorAPI(f"No esta el video {r['asset']} en GitHub")
     ig = ENV["IG_USER_ID"]
     url = a["browser_download_url"]
-    # Via 1: subida "resumable" indicando la URL publica (Instagram descarga el video desde GitHub)
-    cont = meta("POST", f"{ig}/media", {"media_type": "REELS", "upload_type": "resumable",
+    # Instagram descarga el video desde GitHub (via probada el 9 nov 2026)
+    cont = meta("POST", f"{ig}/media", {"media_type": "REELS", "video_url": url,
                                           "caption": d["ig"], "share_to_feed": "true"})["id"]
-    try:
-        res = http("POST", f"https://rupload.facebook.com/ig-api-upload/{ENV['GRAPH_VERSION'] or 'v25.0'}/{cont}",
-                   b"", {"Authorization": f"OAuth {ENV['FB_PAGE_TOKEN']}", "file_url": url})
-        if not res.get("success"):
-            raise ErrorAPI(str(res))
-    except ErrorAPI as e:
-        # Via 2: contenedor clasico con video_url
-        log(f"{r['carpeta']}: la via 1 fallo ({e}); probando con video_url")
-        cont = meta("POST", f"{ig}/media", {"media_type": "REELS", "video_url": url,
-                                              "caption": d["ig"], "share_to_feed": "true"})["id"]
     log(f"{r['carpeta']}: contenedor {cont}, Instagram procesando el video")
     for _ in range(20):  # hasta 10 minutos
         time.sleep(30)
@@ -199,9 +194,10 @@ def publicar(r):
     link = meta("GET", mid, {"fields": "permalink"}).get("permalink", "")
     r.update(estado="publicado", ig_media_id=mid, permalink=link, publicado_real=ahora().strftime("%Y-%m-%d %H:%M"))
     log(f"PUBLICADO {r['carpeta']}: {link}")
-    # Borra el video de GitHub (cuando se agregue YouTube, se borrara despues de publicar en ambos)
-    github("DELETE", f"/releases/assets/{a['id']}")
-    log(f"{r['asset']} borrado de GitHub")
+    # Borra el video de GitHub cuando ya no hace falta para ninguna plataforma
+    if not YT_SUBIDA_ACTIVA or r.get("yt_video_id"):
+        github("DELETE", f"/releases/assets/{a['id']}")
+        log(f"{r['asset']} borrado de GitHub")
 
 
 def publicar_vencidos(filas):
@@ -295,18 +291,114 @@ def metricas_diarias():
     log(f"Metricas del dia guardadas ({len(medios)} publicaciones)")
 
 
+# ---------- YouTube ----------
+_yt_token = None
+
+
+def yt_token():
+    global _yt_token
+    if not _yt_token:
+        _yt_token = http("POST", "https://oauth2.googleapis.com/token", {
+            "client_id": ENV["GOOGLE_CLIENT_ID"], "client_secret": ENV["GOOGLE_CLIENT_SECRET"],
+            "refresh_token": ENV["YT_REFRESH_TOKEN"], "grant_type": "refresh_token"})["access_token"]
+    return _yt_token
+
+
+def yt(url, params=None):
+    return http("GET", url + "?" + urllib.parse.urlencode(params or {}), headers={"Authorization": f"Bearer {yt_token()}"})
+
+
+def metricas_youtube():
+    """Una vez al dia: metricas acumuladas de cada video del canal (YouTube Analytics tarda 2-3 dias en consolidar)."""
+    if not ENV["YT_REFRESH_TOKEN"] or ahora().hour < 6:
+        return
+    hoy = ahora().strftime("%Y-%m-%d")
+    if os.path.exists(HIST_YT):
+        with open(HIST_YT, encoding="utf-8-sig") as f:
+            if any(l.startswith(hoy) for l in f):
+                return
+    rep = yt("https://youtubeanalytics.googleapis.com/v2/reports", {
+        "ids": "channel==MINE", "startDate": "2020-01-01", "endDate": hoy, "dimensions": "video",
+        "metrics": "views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage,likes,comments,shares,subscribersGained",
+        "sort": "-views", "maxResults": 200})
+    cols_rep = [c["name"] for c in rep.get("columnHeaders", [])]
+    filas = [dict(zip(cols_rep, f)) for f in rep.get("rows", [])]
+    info = {}
+    ids = [f["video"] for f in filas]
+    for i in range(0, len(ids), 50):
+        for v in yt("https://www.googleapis.com/youtube/v3/videos",
+                    {"part": "snippet,contentDetails", "id": ",".join(ids[i:i + 50])}).get("items", []):
+            info[v["id"]] = v
+    cols = ["fecha_consulta", "video_id", "fecha_publicacion", "titulo", "duracion", "views", "minutos_vistos",
+            "duracion_media_vista_s", "porcentaje_visto", "likes", "comments", "shares", "suscriptores_ganados"]
+    nuevo = not os.path.exists(HIST_YT)
+    with open(HIST_YT, "a", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        if nuevo:
+            w.writeheader()
+        for fl in filas:
+            v = info.get(fl["video"], {})
+            w.writerow({"fecha_consulta": hoy, "video_id": fl["video"],
+                        "fecha_publicacion": v.get("snippet", {}).get("publishedAt", "")[:16],
+                        "titulo": v.get("snippet", {}).get("title", "")[:90],
+                        "duracion": v.get("contentDetails", {}).get("duration", ""),
+                        "views": fl.get("views"), "minutos_vistos": fl.get("estimatedMinutesWatched"),
+                        "duracion_media_vista_s": fl.get("averageViewDuration"),
+                        "porcentaje_visto": fl.get("averageViewPercentage"), "likes": fl.get("likes"),
+                        "comments": fl.get("comments"), "shares": fl.get("shares"),
+                        "suscriptores_ganados": fl.get("subscribersGained")})
+    log(f"Metricas de YouTube guardadas ({len(filas)} videos)")
+
+
+def subir_short(r):
+    """Sube el Short programado (publishAt) a la misma hora que el Reel. Solo se usa con YT_SUBIDA_ACTIVA."""
+    d = json.load(open(os.path.join(COLA, "textos", f"{r['carpeta']}.json"), encoding="utf-8"))
+    a = asset_de(r["asset"])
+    datos = urllib.request.urlopen(a["browser_download_url"], timeout=300).read()
+    titulo = (d.get("yt_titulo") or d["tema"])[:100]
+    desc = d.get("yt_descripcion") or d["ig"]
+    if "#shorts" not in desc.lower():
+        desc += "\n\n#Shorts"
+    publicar_en = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M").replace(tzinfo=TZ).isoformat()
+    meta_json = json.dumps({"snippet": {"title": titulo, "description": desc, "categoryId": "22", "defaultLanguage": "es"},
+                            "status": {"privacyStatus": "private", "publishAt": publicar_en,
+                                       "selfDeclaredMadeForKids": False}}).encode()
+    limite = "----caminosdivinos"
+    cuerpo = (f"--{limite}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n").encode() + meta_json + \
+             (f"\r\n--{limite}\r\nContent-Type: video/mp4\r\n\r\n").encode() + datos + f"\r\n--{limite}--".encode()
+    res = http("POST", "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status",
+               cuerpo, {"Authorization": f"Bearer {yt_token()}", "Content-Type": f"multipart/related; boundary={limite}"})
+    r.update(yt_video_id=res["id"], yt_estado="programado")
+    log(f"Short subido y programado para {r['fecha_hora']}: https://youtube.com/shorts/{res['id']}")
+
+
+def subir_shorts_pendientes(filas):
+    if not YT_SUBIDA_ACTIVA:
+        return False
+    for r in filas:
+        if r["estado"] == "pendiente" and not r.get("yt_video_id") and r.get("aprobado", "").lower() in ("si", "sí"):
+            try:
+                subir_short(r)
+            except Exception as e:
+                r["yt_estado"] = f"error: {str(e)[:120]}"
+                log(f"ERROR subiendo Short {r['carpeta']}: {e}")
+            return True
+    return False
+
+
 def main():
     filas = leer_cal()
-    for paso in (tomar_cola, publicar_vencidos, medir_24h):
+    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_24h):
         try:
             if paso(filas):
                 guardar_cal(filas)
         except Exception as e:
             log(f"ERROR en {paso.__name__}: {type(e).__name__}: {e}")
-    try:
-        metricas_diarias()
-    except Exception as e:
-        log(f"ERROR en metricas_diarias: {e}")
+    for diario in (metricas_diarias, metricas_youtube):
+        try:
+            diario()
+        except Exception as e:
+            log(f"ERROR en {diario.__name__}: {e}")
 
 
 if __name__ == "__main__":
