@@ -1,0 +1,19 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Panel de analiticas - Caminos Divinos Publicador</title>
+<style>body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:1000px;margin:30px auto;padding:0 20px;color:#1f1f1f}h1{margin-bottom:2px}.yt{display:inline-block;background:#ff0000;color:#fff;font-weight:700;padding:3px 10px;border-radius:6px;font-size:.85em}.kpis{display:flex;gap:14px;margin:18px 0}.kpi{flex:1;border:1px solid #e3e3e3;border-radius:10px;padding:12px 14px}.kpi b{display:block;font-size:1.6em}.kpi span{color:#666;font-size:.85em}table{width:100%;border-collapse:collapse;font-size:.88em}th,td{padding:7px 8px;border-bottom:1px solid #eee;text-align:left}th{background:#fafafa}td.n{text-align:right;font-variant-numeric:tabular-nums}.bar{height:8px;background:#ff0000;border-radius:4px}small{color:#666}</style></head><body>
+<h1>Panel de anal&iacute;ticas</h1>
+<p><span class="yt">&#9654; YouTube</span> &nbsp;Canal Caminos Divinos &middot; datos de la API de YouTube Analytics &middot; <a href="index.html">Inicio</a> &middot; <a href="privacidad.html">Privacidad</a></p>
+<p id="fecha"><small>Cargando&hellip;</small></p>
+<div class="kpis"><div class="kpi"><b id="k1">&ndash;</b><span>Vistas totales</span></div><div class="kpi"><b id="k2">&ndash;</b><span>Minutos vistos</span></div><div class="kpi"><b id="k3">&ndash;</b><span>% visto promedio</span></div><div class="kpi"><b id="k4">&ndash;</b><span>Suscriptores ganados</span></div></div>
+<h2>Videos por vistas</h2>
+<table><thead><tr><th>Video</th><th>Publicado</th><th class="n">Vistas</th><th></th><th class="n">Duraci&oacute;n media vista (s)</th><th class="n">% visto</th></tr></thead><tbody id="t"></tbody></table>
+<script>
+const URL_CSV="https://raw.githubusercontent.com/carrito-azul/caminos-divinos-publicador/main/historico_youtube.csv";
+function parse(t){const r=[];let row=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'&&t[i+1]=='"'){f+='"';i++}else if(c=='"')q=false;else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=""}else if(c=='\n'){row.push(f);r.push(row);row=[];f=""}else if(c!='\r')f+=c}if(f||row.length){row.push(f);r.push(row)}return r}
+fetch(URL_CSV+"?t="+Date.now()).then(r=>r.text()).then(t=>{t=t.replace(/^﻿/,"");const [h,...rs]=parse(t);const o=rs.filter(x=>x.length==h.length).map(x=>Object.fromEntries(h.map((k,i)=>[k,x[i]])));
+const ult=o.map(x=>x.fecha_consulta).sort().pop();const d=o.filter(x=>x.fecha_consulta==ult).sort((a,b)=>b.views-a.views);
+document.getElementById("fecha").innerHTML="<small>&Uacute;ltima actualizaci&oacute;n: "+ult+" &middot; "+d.length+" videos</small>";
+const s=k=>d.reduce((a,x)=>a+(+x[k]||0),0);const f=n=>Math.round(n).toLocaleString("es-CO");
+k1.textContent=f(s("views"));k2.textContent=f(s("minutos_vistos"));k3.textContent=(d.reduce((a,x)=>a+(+x.porcentaje_visto||0),0)/Math.max(d.length,1)).toFixed(1)+"%";k4.textContent=f(s("suscriptores_ganados"));
+const mx=Math.max(...d.map(x=>+x.views||0),1);
+document.getElementById("t").innerHTML=d.slice(0,25).map(x=>`<tr><td><a href="https://youtube.com/watch?v=${x.video_id}">${x.titulo.replace(/</g,"&lt;")}</a></td><td>${x.fecha_publicacion.slice(0,10)}</td><td class="n">${f(+x.views)}</td><td style="width:120px"><div class="bar" style="width:${(x.views/mx*100).toFixed(0)}%"></div></td><td class="n">${x.duracion_media_vista_s}</td><td class="n">${(+x.porcentaje_visto).toFixed(1)}%</td></tr>`).join("")}).catch(e=>{document.getElementById("fecha").textContent="No se pudo cargar el historico: "+e});
+</script></body></html>
