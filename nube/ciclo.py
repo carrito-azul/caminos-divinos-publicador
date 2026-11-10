@@ -189,34 +189,46 @@ def tomar_cola(filas):
     return cambio
 
 
+def crear_contenedor(ig, url, caption, portada_url=None):
+    """Crea el contenedor del Reel y espera a que Instagram procese el video. Devuelve (id, estado)."""
+    p = {"media_type": "REELS", "video_url": url, "caption": caption, "share_to_feed": "true"}
+    if portada_url:
+        p["cover_url"] = portada_url  # la miniatura de CODE ART (flyer.jpg) como portada
+    cont = meta("POST", f"{ig}/media", p)["id"]
+    for _ in range(20):  # hasta 10 minutos
+        time.sleep(30)
+        st = meta("GET", cont, {"fields": "status_code,status"})
+        if st.get("status_code") in ("FINISHED", "ERROR", "EXPIRED"):
+            return cont, st
+    return cont, {"status_code": "TIEMPO", "status": "Instagram tardo mas de 10 minutos procesando"}
+
+
 def publicar(r):
     d = json.load(open(os.path.join(COLA, "textos", f"{r['carpeta']}.json"), encoding="utf-8"))
     a = asset_de(r["asset"])
     if not a:
         raise ErrorAPI(f"No esta el video {r['asset']} en GitHub")
+    portada = asset_de(d.get("portada") or r["asset"].rsplit(".", 1)[0] + ".jpg")
     ig = ENV["IG_USER_ID"]
-    url = a["browser_download_url"]
-    # Instagram descarga el video desde GitHub (via probada el 9 nov 2026)
-    cont = meta("POST", f"{ig}/media", {"media_type": "REELS", "video_url": url,
-                                          "caption": d["ig"], "share_to_feed": "true"})["id"]
-    log(f"{r['carpeta']}: contenedor {cont}, Instagram procesando el video")
-    for _ in range(20):  # hasta 10 minutos
-        time.sleep(30)
-        st = meta("GET", cont, {"fields": "status_code,status"})
-        if st.get("status_code") == "FINISHED":
-            break
-        if st.get("status_code") in ("ERROR", "EXPIRED"):
-            raise ErrorAPI(f"Instagram rechazo el video: {st.get('status')}")
-    else:
-        raise ErrorAPI("Instagram tardo mas de 10 minutos procesando")
+    # Instagram descarga el video (y la portada) desde GitHub (via probada el 9 nov 2026)
+    cont, st = crear_contenedor(ig, a["browser_download_url"], d["ig"],
+                                portada["browser_download_url"] if portada else None)
+    log(f"{r['carpeta']}: contenedor {cont} ({'con portada' if portada else 'sin portada'}): {st.get('status_code')}")
+    if st.get("status_code") != "FINISHED" and portada:
+        log(f"{r['carpeta']}: fallo con portada ({st.get('status')}); se reintenta sin portada")
+        cont, st = crear_contenedor(ig, a["browser_download_url"], d["ig"])
+    if st.get("status_code") != "FINISHED":
+        raise ErrorAPI(f"Instagram rechazo el video: {st.get('status')}")
     mid = meta("POST", f"{ig}/media_publish", {"creation_id": cont})["id"]
     link = meta("GET", mid, {"fields": "permalink"}).get("permalink", "")
     r.update(estado="publicado", ig_media_id=mid, permalink=link, publicado_real=ahora().strftime("%Y-%m-%d %H:%M"))
     log(f"PUBLICADO {r['carpeta']}: {link}")
-    # Borra el video de GitHub cuando ya no hace falta para ninguna plataforma
+    # Borra el video y la portada de GitHub cuando ya no hacen falta para ninguna plataforma
     if not YT_SUBIDA_ACTIVA or r.get("yt_video_id"):
-        github("DELETE", f"/releases/assets/{a['id']}")
-        log(f"{r['asset']} borrado de GitHub")
+        for x in (a, portada):
+            if x:
+                github("DELETE", f"/releases/assets/{x['id']}")
+                log(f"{x['name']} borrado de GitHub")
 
 
 def publicar_vencidos(filas):
