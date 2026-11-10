@@ -347,6 +347,16 @@ def metricas_youtube():
                         "porcentaje_visto": fl.get("averageViewPercentage"), "likes": fl.get("likes"),
                         "comments": fl.get("comments"), "shares": fl.get("shares"),
                         "suscriptores_ganados": fl.get("subscribersGained")})
+    # Politica de datos de YouTube: no conservar datos de la API mas de 30 dias sin actualizar
+    limite = (ahora() - timedelta(days=30)).strftime("%Y-%m-%d")
+    with open(HIST_YT, encoding="utf-8-sig", newline="") as f:
+        todas = list(csv.DictReader(f))
+    vigentes = [r for r in todas if r["fecha_consulta"] >= limite]
+    if len(vigentes) < len(todas):
+        with open(HIST_YT, "w", encoding="utf-8-sig", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=cols)
+            w.writeheader()
+            w.writerows(vigentes)
     log(f"Metricas de YouTube guardadas ({len(filas)} videos)")
 
 
