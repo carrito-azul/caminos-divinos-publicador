@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-11 09:15 · Videos medidos: 3 · Con dato de 24 h: 2 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-11 13:45 · Videos medidos: 3 · Con dato de 24 h: 2 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-08-persiguiendo` con 1.765 reproducciones (medición 72h). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
@@ -15,7 +15,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 |---|---|---|---|---|---|---|---|---|---|
 | `2026-11-08-persiguiendo` | 11-07 22:30 | pregunta_directa | 61 s | 1.764 ≈ | 34 % | 27 % | 4.7 | 14.7 | 1.765 vistas (72h) |
 | `2026-11-09-ceguera-eleccion` | 11-10 09:01 ⚠ | imagina | 57 s | 1.368 | 23 % | 72 % | 0.0 | 2.1 | 1.368 vistas (24h) |
-| `2026-11-09-si-entonces` | 11-11 12:31 ⚠ | dato_impactante | 46 s | — | — | — | — | — | — vistas (—) |
+| `2026-11-09-si-entonces` | 11-11 12:31 ⚠ | dato_impactante | 46 s | — | — | — | — | — | 132 vistas (1h) |
 
 ⚠ = salió fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
