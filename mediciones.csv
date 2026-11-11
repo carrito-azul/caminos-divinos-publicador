@@ -1,3 +1,4 @@
 ﻿carpeta,ig_media_id,hito,fecha,horas,views,reach,likes,comments,saved,shares,total_interactions,avg_watch_s,skip_rate,fuente
 2026-11-08-persiguiendo,18146823511587608,48h,2026-11-09 22:03,47.5,1764,1493,55,0,22,7,86,16.2,34.4,historico.csv (consulta 9 nov)
 2026-11-09-ceguera-eleccion,17866074789695415,4h,2026-11-10 13:17,4.3,20,9,0,0,0,0,0,5,,manual (panel web de Instagram)
+2026-11-08-persiguiendo,18146823511587608,72h,2026-11-10 22:30,72.0,1765,1493,55,0,22,7,86,16.2,34.4,api
