@@ -22,7 +22,7 @@ CATALOGO = {
     "cierre_tipo": ["pregunta", "reflexion", "llamado_seguir", "llamado_comentar", "llamado_guardar", "llamado_enviar"],
 }
 VARIABLES = [("gancho_tipo", "Tipo de gancho"), ("emocion", "Emoción principal"), ("categoria", "Categoría"),
-             ("cierre_tipo", "Tipo de cierre"), ("estilo_visual", "Estilo visual"), ("duracion", "Duración")]
+             ("cierre_tipo", "Tipo de cierre"), ("relato_biblico", "Relato bíblico"), ("estilo_visual", "Estilo visual"), ("duracion", "Duración")]
 # Metas: lo que suelen tener los Reels que Instagram sigue empujando a no seguidores (referencia general,
 # no sale de tus datos; se ajusta cuando haya suficientes videos propios).
 META_SALTO = 40       # % que lo pasa en los primeros segundos: menos es mejor
@@ -120,6 +120,15 @@ def _linea_base():
             "mediana_salto": statistics.median(sk) if sk else None, "mediana_watch": statistics.median(wt) if wt else None}
 
 
+def _a_tiempo(r, max_min=45):
+    try:
+        prog = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M")
+        real = datetime.strptime(r.get("publicado_real") or r["fecha_hora"], "%Y-%m-%d %H:%M")
+        return abs((real - prog).total_seconds()) <= max_min * 60
+    except (KeyError, ValueError):
+        return True
+
+
 def _f(x, suf="", dec=0):
     if x is None or x == "":
         return "—"
@@ -161,8 +170,7 @@ def construir():
           "|---|---|---|---|---|---|---|---|---|---|"]
     for v in sorted(vids, key=lambda v: v["cal"].get("publicado_real") or v["cal"].get("fecha_hora", "")):
         d, du, f = v["d24"], v["dult"], v["ficha"]
-        fuera = "" if not v["cal"].get("publicado_real") or v["cal"].get("publicado_real") == v["cal"].get("fecha_hora") \
-            else " ⚠"
+        fuera = "" if _a_tiempo(v["cal"]) else " ⚠"
         ap = " ≈" if v["aprox24"] else ""
         L.append(f"| `{v['carpeta']}` | {(v['cal'].get('publicado_real') or v['cal'].get('fecha_hora', ''))[5:]}{fuera} | "
                  f"{f.get('gancho_tipo', '—')} | {_f(_num(f.get('duracion_s')), ' s')} | {_f(d.get('views'))}{ap} | "
@@ -171,7 +179,7 @@ def construir():
     if not vids:
         L.append("| (todavía no hay videos medidos) | | | | | | | | | |")
     L.append("")
-    L.append("⚠ = salió fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. "
+    L.append("⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. "
              "≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).")
     sin_ficha = [v["carpeta"] for v in vids if not v["ficha"]]
     if sin_ficha:
@@ -184,7 +192,12 @@ def construir():
     for var, nombre in VARIABLES:
         grupos = {}
         for v in con24:
-            val = v["duracion"] if var == "duracion" else v["ficha"].get(var)
+            if var == "duracion":
+                val = v["duracion"]
+            elif var == "relato_biblico":
+                val = ("con relato bíblico" if v["ficha"].get("relato_biblico") else "sin relato") if v["ficha"] else None
+            else:
+                val = v["ficha"].get(var)
             if val:
                 grupos.setdefault(val, []).append(v)
         if not grupos:
