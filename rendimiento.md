@@ -71,7 +71,7 @@ Sin datos todavía: reflexion, llamado_seguir, llamado_comentar, llamado_guardar
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Compartidos:** ningún video llega todavía a la meta. Prueba un cierre que invite a enviarlo («mándaselo a quien…») o un tema que la gente quiera mandarle a alguien concreto.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
-- **Ya en cola (aún no publicados):** `2026-11-09-soltar` prueba reto_al_espectador; `2026-11-12-gracias` prueba historia. No repitas esas pruebas.
+- **Ya en cola (aún no publicados):** `2026-11-09-soltar` prueba reto_al_espectador; `2026-11-12-gracias` prueba historia; `2026-11-12-talento-enterrado` prueba imagina. No repitas esas pruebas.
 - **Esperando datos:** 2026-11-09-si-entonces (aún sin 24 h). No saques conclusiones de ellos todavía.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
