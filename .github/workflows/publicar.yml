@@ -42,3 +42,10 @@ jobs:
             git pull --rebase
             git push
           fi
+      - name: Avisar si algo fallo (GitHub manda un correo cuando este paso falla)
+        run: |
+          if [ -f /tmp/caminos_alerta.txt ]; then
+            cat /tmp/caminos_alerta.txt
+            echo "::error::$(head -1 /tmp/caminos_alerta.txt)"
+            exit 1
+          fi
