@@ -24,13 +24,15 @@ EXPLORACION = 0.25          # 1 de cada 4 veces prueba otra franja distinta a la
 SEPARACION_MIN_HORAS = 20   # minimo entre publicaciones
 MAX_POR_DIA = 1
 ANTICIPACION_MIN_HORAS = 1  # un video nuevo no se publica antes de 1 h
+MAX_INTENTOS = 3            # si Instagram falla, se reintenta en los ciclos siguientes (cada 15 min) hasta 3 veces
+ALERTA = "/tmp/caminos_alerta.txt"  # si existe al terminar, el workflow falla y GitHub manda un correo
 HITOS = [(1, "1h"), (3, "3h"), (24, "24h"), (72, "72h"), (168, "7d")]  # cuando se mide cada Reel
 DESFASE_MAX_MIN = 45        # si salio mas tarde que esto respecto a su franja, no cuenta para aprender horarios
 # -----------------------------------
 
 COLS = ["id", "fecha_hora", "carpeta", "asset", "tema", "gancho", "aprobado", "estado", "ig_media_id", "permalink",
         "detectado", "franja", "motivo_hora", "publicado_real", "views_24h", "reach_24h", "skip_24h", "watch_24h_s",
-        "yt_video_id", "yt_estado"]
+        "yt_video_id", "yt_estado", "intentos"]
 ENV = {k: os.environ.get(k, "") for k in ("FB_PAGE_TOKEN", "IG_USER_ID", "GRAPH_VERSION", "GH_TOKEN", "GH_REPO",
                                           "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "YT_REFRESH_TOKEN")}
 HIST_YT = os.path.join(RAIZ, "historico_youtube.csv")
@@ -223,30 +225,73 @@ def publicar(r):
     link = meta("GET", mid, {"fields": "permalink"}).get("permalink", "")
     r.update(estado="publicado", ig_media_id=mid, permalink=link, publicado_real=ahora().strftime("%Y-%m-%d %H:%M"))
     log(f"PUBLICADO {r['carpeta']}: {link}")
-    # Borra el video y la portada de GitHub cuando ya no hacen falta para ninguna plataforma
-    if not YT_SUBIDA_ACTIVA or r.get("yt_video_id"):
-        for x in (a, portada):
-            if x:
-                github("DELETE", f"/releases/assets/{x['id']}")
-                log(f"{x['name']} borrado de GitHub")
+    borrar_assets(r, a, portada)
+
+
+def borrar_assets(r, a=None, portada=None):
+    """Borra el video y la portada de GitHub cuando ya no hacen falta para ninguna plataforma."""
+    if YT_SUBIDA_ACTIVA and not r.get("yt_video_id"):
+        return
+    if a is None:
+        a = asset_de(r["asset"])
+        portada = asset_de(r["asset"].rsplit(".", 1)[0] + ".jpg")
+    for x in (a, portada):
+        if x:
+            github("DELETE", f"/releases/assets/{x['id']}")
+            log(f"{x['name']} borrado de GitHub")
+
+
+def alerta(msg):
+    with open(ALERTA, "a", encoding="utf-8") as f:
+        f.write(msg + "\n")
+    log(f"ALERTA: {msg}")
+
+
+def ya_publicado(r):
+    """Antes de (re)intentar, mira si el Reel ya esta en Instagram (p. ej. un ciclo se corto tras publicarlo)."""
+    try:
+        d = json.load(open(os.path.join(COLA, "textos", f"{r['carpeta']}.json"), encoding="utf-8"))
+        inicio = " ".join(d["ig"].split())[:80]
+        desde = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M").replace(tzinfo=TZ) - timedelta(minutes=10)
+        for m in meta("GET", f"{ENV['IG_USER_ID']}/media",
+                      {"fields": "id,caption,permalink,timestamp", "limit": 10}).get("data", []):
+            t = datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z")
+            if t >= desde and " ".join((m.get("caption") or "").split())[:80] == inicio:
+                return m, t.astimezone(TZ)
+    except Exception as e:
+        log(f"No se pudo comprobar si {r['carpeta']} ya estaba publicado: {e}")
+    return None, None
 
 
 def publicar_vencidos(filas):
     for r in filas:
-        if r["estado"] == "publicando":  # una ejecucion anterior se corto: no reintentar a ciegas
-            r["estado"] = "error: interrumpido, revisar en Instagram"
+        if r["estado"] == "publicando":  # una ejecucion anterior se corto: se comprueba en Instagram antes de reintentar
+            r["estado"] = "pendiente"
     for r in sorted(filas, key=lambda r: r.get("fecha_hora", "")):
         if r["estado"] != "pendiente" or r.get("aprobado", "").strip().lower() not in ("si", "sí"):
             continue
         if datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M") > ahora():
             continue
+        m, t = ya_publicado(r)
+        if m:  # ya salio (no se publica dos veces)
+            r.update(estado="publicado", ig_media_id=m["id"], permalink=m.get("permalink", ""),
+                     publicado_real=t.strftime("%Y-%m-%d %H:%M"))
+            log(f"{r['carpeta']} ya estaba publicado en Instagram: {r['permalink']}")
+            borrar_assets(r)
+            return True
         r["estado"] = "publicando"
         guardar_cal(filas)
         try:
             publicar(r)
         except Exception as e:
-            r["estado"] = f"error: {str(e)[:150]}"
-            log(f"ERROR publicando {r['carpeta']}: {e}")
+            n = int(r.get("intentos") or 0) + 1
+            r["intentos"] = n
+            if n < MAX_INTENTOS:
+                r["estado"] = "pendiente"
+                log(f"ERROR publicando {r['carpeta']} (intento {n} de {MAX_INTENTOS}); se reintenta en el proximo ciclo: {e}")
+            else:
+                r["estado"] = f"error: {str(e)[:150]}"
+                alerta(f"No se pudo publicar {r['carpeta']} tras {n} intentos: {str(e)[:300]}")
         return True  # uno por ciclo
     return False
 
@@ -488,6 +533,8 @@ from analisis import escribir_rendimiento  # noqa: E402  (lee calendario, medici
 
 
 def main():
+    if os.path.exists(ALERTA):
+        os.remove(ALERTA)
     filas = leer_cal()
     for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos):
         try:
@@ -500,6 +547,8 @@ def main():
             diario()
         except Exception as e:
             log(f"ERROR en {diario.__name__}: {type(e).__name__}: {e}")
+            if "OAuthException" in str(e) or "(190)" in str(e) or "code 190" in str(e):
+                alerta(f"La llave de Instagram/Facebook dejo de funcionar: {str(e)[:300]}")
 
 
 if __name__ == "__main__":
