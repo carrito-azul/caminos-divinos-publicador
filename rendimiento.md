@@ -15,9 +15,9 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 |---|---|---|---|---|---|---|---|---|---|
 | `2026-11-08-persiguiendo` | 11-07 22:30 | pregunta_directa | 61 s | 1.764 ≈ | 34 % | 27 % | 4.7 | 14.7 | 1.765 vistas (72h) |
 | `2026-11-09-ceguera-eleccion` | 11-10 09:01 ⚠ | imagina | 57 s | 1.368 | 23 % | 72 % | 0.0 | 2.1 | 1.368 vistas (24h) |
-| `2026-11-09-si-entonces` | 11-11 12:31 ⚠ | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 368 vistas (24h) |
+| `2026-11-09-si-entonces` | 11-11 12:31 | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 368 vistas (24h) |
 
-⚠ = salió fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
+⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
 ## Qué decisión funciona mejor
 
@@ -54,6 +54,12 @@ Sin datos todavía: reto_al_espectador, historia, afirmacion_contraria, promesa.
 | pregunta | 3 | 1.167 | 33 % | 45 % | 6.0 | tendencia |
 
 Sin datos todavía: reflexion, llamado_seguir, llamado_comentar, llamado_guardar, llamado_enviar.
+
+**Relato bíblico**
+
+| Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
+|---|---|---|---|---|---|---|
+| sin relato | 3 | 1.167 | 33 % | 45 % | 6.0 | tendencia |
 
 **Estilo visual**
 
