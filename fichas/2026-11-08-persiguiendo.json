@@ -17,8 +17,9 @@
  "cierre_texto": "¿Qué sigues persiguiendo solo porque ya empezaste? / Detenerte a preguntarlo también es parte del camino.",
  "estilo_visual": "silueta + metáforas luminosas",
  "voz": "Antonio (ElevenLabs)",
- "musica": true,
+ "musica": false,
  "hipotesis": "(primer video del sistema CODE ART; sin hipótesis previa)",
  "variable_probada": "",
- "ficha_retroactiva": true
+ "ficha_retroactiva": true,
+ "nota_musica": "Corregido el 12 nov: los videos de Caminos Divinos no llevan música de fondo, solo efectos."
 }
