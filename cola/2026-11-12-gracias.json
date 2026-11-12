@@ -1,0 +1,33 @@
+{
+ "carpeta": "2026-11-12-gracias",
+ "asset": "2026-11-12-gracias.mp4",
+ "tema": "El mensaje de gracias que nunca envías",
+ "ig": "¿Por qué nos cuesta tanto dar las gracias?\n\nEn un estudio, quienes escribieron una carta de agradecimiento creyeron que sorprendería poco y que resultaría incómoda. Quienes la recibieron se sintieron mucho más sorprendidos y felices, y mucho menos incómodos de lo que se esperaba. No hace falta el mensaje perfecto: hace falta enviarlo.\n\nSigue a Caminos Divinos para seguir entendiendo tu camino.\n\n#gratitud #psicología #relaciones #agradecimiento #crecimientopersonal",
+ "yt_titulo": "Por qué nos cuesta dar las gracias (y por qué deberías hacerlo)",
+ "yt_descripcion": "Por qué nos cuesta dar las gracias: en varios experimentos, quienes escribieron una carta de agradecimiento subestimaron cuánto sorprendería y alegraría a quien la recibía, y sobreestimaron lo incómodo que sería. Lo que más los frenaba era el miedo a no decirlo bien; a quien la recibe le importa más la calidez. Suscríbete a Caminos Divinos.\n\nFuente: Kumar y Epley (2018), «Undervaluing Gratitude», Psychological Science.\n\n#Shorts #gratitud #psicología #relaciones",
+ "detectado": "2026-11-11 21:45",
+ "ficha": {
+  "carpeta": "2026-11-12-gracias",
+  "gancho_texto": "Lucía lleva diez años sin darle las gracias a su maestra.",
+  "gancho_tipo": "historia",
+  "gancho_palabras": 11,
+  "gancho_visual": "Fotograma 0: la pantalla del celular, enorme, con un mensaje de gracias que se escribe solo; la cámara se aleja hasta Lucía en su sofá. En «borra», el texto se borra letra a letra.",
+  "segunda_frase": "Escribe el mensaje, lo lee… y lo borra. (identifica: a todos nos ha pasado)",
+  "tema": "Subestimamos lo que significa un mensaje de gracias (Kumar y Epley, 2018)",
+  "categoria": "relaciones",
+  "emocion": "identificacion",
+  "duracion_s": 50,
+  "palabras_guion": 125,
+  "velocidad_voz": 1.05,
+  "estructura": "historia → pregunta → estudio → error de predicción → freno → remate con la historia → seguir",
+  "estudio_citado": true,
+  "cierre_tipo": "llamado_seguir",
+  "cierre_texto": "Sigue a Caminos Divinos para seguir entendiendo tu camino.",
+  "estilo_visual": "personajes 2D en escenarios cotidianos",
+  "voz": "Antonio (ElevenLabs)",
+  "musica": false,
+  "hipotesis": "Un gancho de historia con una persona concreta retiene tanto como «imagina» y el tema se manda a alguien a quien agradecer.",
+  "variable_probada": "gancho_tipo"
+ },
+ "portada": "2026-11-12-gracias.jpg"
+}
