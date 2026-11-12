@@ -17,8 +17,9 @@
  "cierre_texto": "Sigue a Caminos Divinos para seguir entendiendo tu camino.",
  "estilo_visual": "personajes 2D en escenarios cotidianos",
  "voz": "Antonio (ElevenLabs)",
- "musica": true,
+ "musica": false,
  "hipotesis": "(ficha retroactiva) reto interactivo en el primer segundo; cierre con llamado a seguir",
  "variable_probada": "gancho_tipo",
- "ficha_retroactiva": true
+ "ficha_retroactiva": true,
+ "nota_musica": "Corregido el 12 nov: los videos de Caminos Divinos no llevan música de fondo, solo efectos."
 }
