@@ -17,8 +17,9 @@
  "cierre_texto": "¿Qué llevas tiempo dejando para «algún día»?",
  "estilo_visual": "personajes 2D en escenarios cotidianos",
  "voz": "Antonio (ElevenLabs)",
- "musica": true,
+ "musica": false,
  "hipotesis": "(ficha retroactiva) dato impactante dirigido a ti + consejo aplicable; video más corto (46 s)",
  "variable_probada": "gancho_tipo",
- "ficha_retroactiva": true
+ "ficha_retroactiva": true,
+ "nota_musica": "Corregido el 12 nov: los videos de Caminos Divinos no llevan música de fondo, solo efectos."
 }
