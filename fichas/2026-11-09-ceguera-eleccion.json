@@ -17,9 +17,10 @@
  "cierre_texto": "¿Cuántas veces revisamos nuestras decisiones, y cuántas simplemente aprendemos a justificarlas?",
  "estilo_visual": "silueta en oscuridad + cartas",
  "voz": "Antonio (ElevenLabs)",
- "musica": true,
+ "musica": false,
  "hipotesis": "(ficha retroactiva) gancho de escenario hipotético en vez de pregunta directa",
  "variable_probada": "gancho_tipo",
  "ficha_retroactiva": true,
- "nota": "Salió a las 9:01 en vez de 7:00 (GitHub no ejecutó el ciclo a tiempo)."
+ "nota": "Salió a las 9:01 en vez de 7:00 (GitHub no ejecutó el ciclo a tiempo).",
+ "nota_musica": "Corregido el 12 nov: los videos de Caminos Divinos no llevan música de fondo, solo efectos."
 }
