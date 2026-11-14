@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-13 23:15 · Videos medidos: 5 · Con dato de 24 h: 4 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-14 12:45 · Videos medidos: 5 · Con dato de 24 h: 4 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-08-persiguiendo` con 1.765 reproducciones (medición 72h). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
@@ -15,7 +15,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 |---|---|---|---|---|---|---|---|---|---|
 | `2026-11-08-persiguiendo` | 11-07 22:30 | pregunta_directa | 61 s | 1.764 ≈ | 34 % | 27 % | 4.7 | 14.7 | 1.765 vistas (72h) |
 | `2026-11-09-ceguera-eleccion` | 11-10 09:01 ⚠ | imagina | 57 s | 1.368 | 23 % | 72 % | 0.0 | 2.1 | 1.379 vistas (72h) |
-| `2026-11-09-si-entonces` | 11-11 12:31 | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 368 vistas (24h) |
+| `2026-11-09-si-entonces` | 11-11 12:31 | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 377 vistas (72h) |
 | `2026-11-09-soltar` | 11-12 18:01 | reto_al_espectador | 49 s | 1.318 | 31 % | 26 % | 4.3 | 8.6 | 1.318 vistas (24h) |
 | `2026-11-12-gracias` | 11-13 20:01 | historia | 50 s | — | — | — | — | — | 976 vistas (3h) |
 
