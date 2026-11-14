@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendario de Reels · Caminos Divinos</title>
+<style>
+  :root{
+    --fondo:#160f24; --panel:#1f1633; --linea:#33264d; --texto:#f3eefc; --suave:#a99cc4;
+    --lavanda:#b9a3f0; --dorado:#f2b35c; --verde:#6fd3a1; --rojo:#ff7a7a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.35}
+  header{padding:22px 20px 8px;max-width:1180px;margin:0 auto}
+  h1{margin:0;font-size:1.45rem;letter-spacing:.2px}
+  h1 span{color:var(--dorado)}
+  .sub{color:var(--suave);font-size:.88rem;margin-top:4px}
+  main{max-width:1180px;margin:0 auto;padding:0 20px 40px}
+
+  .proximos{display:flex;gap:12px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:thin}
+  .proximos:empty::after{content:"No hay reels programados. Cuando CODE ART termine uno, aparecerá aquí.";
+       color:var(--suave);font-size:.9rem}
+  .prox{flex:0 0 auto;width:150px;background:var(--panel);border:1px solid var(--linea);border-radius:14px;
+        overflow:hidden;text-decoration:none;color:inherit}
+  .prox .img{aspect-ratio:9/16;background:#2a1f42 center/cover no-repeat}
+  .prox .info{padding:8px 10px 10px;font-size:.8rem}
+  .prox .cuando{color:var(--dorado);font-weight:700}
+  .seccion{margin:22px 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--suave)}
+
+  .barra{display:flex;align-items:center;gap:10px;margin:8px 0 12px}
+  .barra h2{margin:0;font-size:1.15rem;flex:1}
+  button{background:var(--panel);color:var(--texto);border:1px solid var(--linea);border-radius:10px;
+         padding:7px 13px;font-size:.95rem;cursor:pointer}
+  button:hover{border-color:var(--lavanda)}
+
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .dow{font-size:.72rem;color:var(--suave);text-align:center;padding:2px 0;text-transform:uppercase;letter-spacing:1px}
+  .dia{min-height:118px;background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:6px;
+       display:flex;flex-direction:column;gap:5px}
+  .dia.fuera{opacity:.35}
+  .dia.hoy{border-color:var(--dorado);box-shadow:0 0 0 1px var(--dorado) inset}
+  .num{font-size:.78rem;color:var(--suave)}
+  .dia.hoy .num{color:var(--dorado);font-weight:700}
+  .ev{display:flex;gap:6px;align-items:flex-start;text-decoration:none;color:inherit;
+      background:#271c3d;border-radius:9px;padding:4px;cursor:pointer}
+  .ev:hover{outline:1px solid var(--lavanda)}
+  .ev .mini{flex:0 0 38px;aspect-ratio:9/16;border-radius:6px;background:#3a2d58 center/cover no-repeat}
+  .ev .t{font-size:.72rem;min-width:0}
+  .ev .hora{font-weight:700}
+  .ev .tema{color:var(--suave);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .chip{display:inline-block;font-size:.66rem;padding:1px 6px;border-radius:20px;margin-left:3px;vertical-align:1px}
+  .pendiente{background:rgba(242,179,92,.18);color:var(--dorado)}
+  .publicado{background:rgba(111,211,161,.16);color:var(--verde)}
+  .error{background:rgba(255,122,122,.18);color:var(--rojo)}
+
+  .agenda{display:none}
+  .fila{display:flex;gap:12px;background:var(--panel);border:1px solid var(--linea);border-radius:14px;
+        padding:10px;margin-bottom:10px;text-decoration:none;color:inherit}
+  .fila .img{flex:0 0 74px;aspect-ratio:9/16;border-radius:9px;background:#3a2d58 center/cover no-repeat}
+  .fila .cuando{color:var(--dorado);font-weight:700;font-size:.9rem}
+  .fila .tema{margin:3px 0;font-size:.95rem}
+  .fila .gancho{color:var(--suave);font-size:.85rem}
+  .fila .datos{margin-top:6px;font-size:.8rem;color:var(--suave)}
+
+  dialog{background:var(--panel);color:var(--texto);border:1px solid var(--linea);border-radius:18px;
+         padding:0;max-width:min(92vw,380px)}
+  dialog::backdrop{background:rgba(8,5,14,.75)}
+  dialog img{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:#3a2d58}
+  dialog .cuerpo{padding:14px 16px 16px}
+  dialog .cuando{color:var(--dorado);font-weight:700}
+  dialog p{margin:6px 0}
+  dialog a{color:var(--lavanda)}
+  dialog .cerrar{float:right;margin:-2px -4px 0 8px}
+  .nota{color:var(--suave);font-size:.78rem;margin-top:18px}
+
+  @media (max-width:760px){
+    .grid,.barra,.solo-pc{display:none}
+    .agenda{display:block}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Calendario de <span>Reels</span> · Caminos Divinos</h1>
+  <div class="sub" id="estado">Cargando el calendario…</div>
+</header>
+<main>
+  <div class="seccion">Próximos en salir</div>
+  <div class="proximos" id="proximos"></div>
+
+  <div class="seccion solo-pc">Calendario</div>
+  <div class="barra">
+    <button id="ant" aria-label="Mes anterior">‹</button>
+    <h2 id="mes"></h2>
+    <button id="hoyBtn">Hoy</button>
+    <button id="sig" aria-label="Mes siguiente">›</button>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="agenda" id="agenda"></div>
+
+  <p class="nota">Se actualiza solo: lee el calendario de la automatización cada vez que abres la página
+    (puede tardar hasta 5 minutos en reflejar un cambio). Horas en Bogotá.</p>
+</main>
+
+<dialog id="det">
+  <img id="detImg" alt="">
+  <div class="cuerpo">
+    <button class="cerrar" onclick="det.close()">✕</button>
+    <div class="cuando" id="detCuando"></div>
+    <p id="detTema" style="font-weight:600"></p>
+    <p id="detGancho" style="color:var(--suave)"></p>
+    <p id="detDatos" style="color:var(--suave);font-size:.88rem"></p>
+    <p id="detLink"></p>
+  </div>
+</dialog>
+
+<script>
+const CSV = "https://raw.githubusercontent.com/carrito-azul/caminos-divinos-publicador/main/calendario.csv";
+const DIAS = ["lun","mar","mié","jue","vie","sáb","dom"];
+const ESTADOS = {pendiente:"programado", publicando:"programado", publicado:"publicado", error:"error"};
+let reels = [], vista = new Date();
+
+function parseCSV(t){
+  const filas=[]; let f=[], c="", q=false;
+  for(let i=0;i<t.length;i++){
+    const ch=t[i];
+    if(q){ if(ch=='"'&&t[i+1]=='"'){c+='"';i++} else if(ch=='"') q=false; else c+=ch; }
+    else if(ch=='"') q=true;
+    else if(ch==','){f.push(c);c=""}
+    else if(ch=='\n'){f.push(c);filas.push(f);f=[];c=""}
+    else if(ch!='\r') c+=ch;
+  }
+  if(c||f.length){f.push(c);filas.push(f)}
+  const cab=filas.shift();
+  return filas.filter(r=>r.length>1).map(r=>Object.fromEntries(cab.map((k,i)=>[k,r[i]||""])));
+}
+function fecha(r){
+  const s=(r.estado==="publicado"&&r.publicado_real)?r.publicado_real:r.fecha_hora;
+  const [d,h]=s.split(" "); const [y,m,dd]=d.split("-").map(Number); const [hh,mm]=(h||"0:0").split(":").map(Number);
+  return new Date(y,m-1,dd,hh,mm);
+}
+const clave = d => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+const hora = d => d.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
+const may = s => s.charAt(0).toUpperCase()+s.slice(1);
+const diaLargo = d => may(d.toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"long"}));
+const portada = r => `portadas/${r.carpeta}.jpg`;
+const fondo = r => `background-image:url('${portada(r)}')`;
+const chip = r => { const e=ESTADOS[r.estado]||r.estado; const cls=e==="programado"?"pendiente":e; return `<span class="chip ${cls}">${e}</span>`; };
+const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = n => Number(n).toLocaleString("es-CO");
+
+function abrir(i){
+  const r=reels[i], d=r._f;
+  detImg.src=portada(r); detImg.alt=r.tema;
+  detCuando.textContent=`${diaLargo(d)} · ${hora(d)}`;
+  detTema.innerHTML=esc(r.tema)+" "+chip(r);
+  detGancho.textContent=r.gancho?`Gancho: «${r.gancho}»`:"";
+  detDatos.textContent=r.views_24h?`${num(r.views_24h)} vistas en 24 h · salto ${r.skip_24h} %`:
+    (r.estado==="publicado"?"Esperando la medición de 24 h.":(r.motivo_hora||""));
+  detLink.innerHTML=r.permalink?`<a href="${r.permalink}" target="_blank" rel="noopener">Ver en Instagram ↗</a>`:"";
+  det.showModal();
+}
+
+function pintar(){
+  const y=vista.getFullYear(), m=vista.getMonth(), hoy=new Date();
+  mes.textContent=may(vista.toLocaleDateString("es-CO",{month:"long",year:"numeric"}));
+  const porDia={}; reels.forEach((r,i)=>{(porDia[clave(r._f)]=porDia[clave(r._f)]||[]).push(i)});
+  const ini=new Date(y,m,1), desfase=(ini.getDay()+6)%7, inicio=new Date(y,m,1-desfase);
+  let h=DIAS.map(d=>`<div class="dow">${d}</div>`).join("");
+  for(let k=0;k<42;k++){
+    const d=new Date(inicio); d.setDate(inicio.getDate()+k);
+    if(k>=35 && d.getMonth()!==m) break;
+    const cls=["dia", d.getMonth()!==m?"fuera":"", clave(d)===clave(hoy)?"hoy":""].join(" ");
+    const evs=(porDia[clave(d)]||[]).map(i=>{const r=reels[i];return `
+      <div class="ev" onclick="abrir(${i})" title="${esc(r.tema)}">
+        <div class="mini" style="${fondo(r)}"></div>
+        <div class="t"><span class="hora">${hora(r._f)}</span>${chip(r)}<div class="tema">${esc(r.tema)}</div></div>
+      </div>`}).join("");
+    h+=`<div class="${cls}"><div class="num">${d.getDate()}</div>${evs}</div>`;
+  }
+  grid.innerHTML=h;
+
+  const ahora=new Date(); ahora.setHours(0,0,0,0);
+  const futuros=reels.map((r,i)=>i).filter(i=>reels[i].estado!=="publicado");
+  const recientes=reels.map((r,i)=>i).filter(i=>reels[i].estado==="publicado").reverse();
+  proximos.innerHTML=futuros.map(i=>{const r=reels[i];return `
+    <a class="prox" href="#" onclick="abrir(${i});return false">
+      <div class="img" style="${fondo(r)}"></div>
+      <div class="info"><div class="cuando">${diaLargo(r._f).replace(/ de [a-z]+$/,"")} · ${hora(r._f)}</div>${esc(r.tema)}</div>
+    </a>`}).join("");
+  const fila=i=>{const r=reels[i];return `
+    <a class="fila" href="#" onclick="abrir(${i});return false">
+      <div class="img" style="${fondo(r)}"></div>
+      <div><div class="cuando">${diaLargo(r._f)} · ${hora(r._f)} ${chip(r)}</div>
+        <div class="tema">${esc(r.tema)}</div>
+        <div class="gancho">${r.gancho?"«"+esc(r.gancho)+"»":""}</div>
+        <div class="datos">${r.views_24h?num(r.views_24h)+" vistas en 24 h":""}</div></div>
+    </a>`};
+  agenda.innerHTML=(futuros.length?'<div class="seccion">Programados</div>'+futuros.map(fila).join(""):"")+
+                   (recientes.length?'<div class="seccion">Ya publicados</div>'+recientes.map(fila).join(""):"");
+}
+
+ant.onclick=()=>{vista=new Date(vista.getFullYear(),vista.getMonth()-1,1);pintar()};
+sig.onclick=()=>{vista=new Date(vista.getFullYear(),vista.getMonth()+1,1);pintar()};
+hoyBtn.onclick=()=>{vista=new Date();pintar()};
+
+fetch(CSV+"?t="+Date.now()).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(t=>{
+  reels=parseCSV(t).filter(r=>r.fecha_hora).map(r=>({...r,_f:fecha(r)})).sort((a,b)=>a._f-b._f);
+  const pend=reels.filter(r=>r.estado!=="publicado").length, pub=reels.length-pend;
+  estado.textContent=`${pend} programado${pend==1?"":"s"} · ${pub} publicado${pub==1?"":"s"} · actualizado ${new Date().toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"})}`;
+  pintar();
+}).catch(e=>{estado.textContent="No se pudo leer el calendario ("+e.message+"). Intenta recargar en un minuto.";});
+</script>
+</body>
+</html>
