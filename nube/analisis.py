@@ -255,7 +255,7 @@ def construir():
           "- El primer segundo decide: el fotograma 0 ya en movimiento y una frase que hable directo a quien mira, "
           "escrita grande en pantalla.",
           "- El gancho, corto: una idea en menos de 3 s. Una primera frase de más de 12 palabras suele perder gente.",
-          "- Pagar la promesa del gancho antes de la mitad del video; si la respuesta llega al final, muchos no llegan.",
+          "- Dar una primera respuesta corta antes de la mitad (premia al que se queda) y guardar la respuesta entera y el giro para el final; sin curvas en el medio, el giro final no lo ve nadie.",
           "- Un video que se comparte se envía *a alguien*: piensa a quién se lo mandaría quien lo ve.",
           "- 50.000 no llega de golpe por un video perfecto: llega de muchos intentos medidos. Cada video, una prueba."]
     return "\n".join(L) + "\n"
