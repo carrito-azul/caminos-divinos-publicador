@@ -21,7 +21,8 @@ MED, FICHAS, REND = (os.path.join(RAIZ, n) for n in ("mediciones.csv", "fichas",
 # ---------- Configuracion ----------
 FRANJAS = [(7, 0), (12, 30), (18, 0), (20, 0), (22, 30)]   # franjas que se prueban (hora Colombia)
 EXPLORACION = 0.25          # 1 de cada 4 veces prueba otra franja distinta a la mejor
-SEPARACION_MIN_HORAS = 20   # minimo entre publicaciones
+SEPARACION_MIN_HORAS = 14   # minimo entre publicaciones (14 h deja llegar a cualquier franja al dia siguiente)
+MIN_DATOS_FRANJA = 3        # videos con dato de 24 h que necesita una franja para poder llamarse 'la mejor'
 MAX_POR_DIA = 1
 ANTICIPACION_MIN_HORAS = 1  # un video nuevo no se publica antes de 1 h
 MAX_INTENTOS = 3            # si Instagram falla, se reintenta en los ciclos siguientes (cada 15 min) hasta 3 veces
@@ -142,28 +143,42 @@ def elegir_hora(filas, desde, excluir=None):
         desde = max(desde, ultima + timedelta(hours=SEPARACION_MIN_HORAS))
     prom, cuenta = rendimiento(filas)
     etiquetas = [f"{h:02d}:{m:02d}" for h, m in FRANJAS]
-    reservadas = {r.get("franja") for r in filas
-                  if not any(r is x for x in excluir) and r["estado"] in ("pendiente", "publicado")}
-    sin_datos = [e for e in etiquetas if cuenta.get(e, 0) == 0 and e not in reservadas]
-    if sin_datos:
-        objetivo, motivo = sin_datos, "exploracion: franja aun sin datos"
-    elif not prom:
-        objetivo, motivo = etiquetas, "esperando datos de 24 h"
-    else:
-        mejor = max(prom, key=prom.get)
-        if random.random() < EXPLORACION and len(etiquetas) > 1:
-            objetivo = [random.choice([e for e in etiquetas if e != mejor])]
-            motivo = f"exploracion: se vuelve a probar {objetivo[0]} (la mejor sigue siendo {mejor})"
-        else:
-            objetivo = [mejor]
-            motivo = f"mejor franja: {mejor} ({prom[mejor]:.0f} vistas a 24 h, {cuenta[mejor]} Reels)"
-    t = desde.replace(second=0, microsecond=0, minute=(desde.minute // 15) * 15)
-    for _ in range(14 * 96):
-        e = f"{t.hour:02d}:{t.minute:02d}"
-        if e in objetivo and t >= desde and ocupados.get(t.strftime("%Y-%m-%d"), 0) < MAX_POR_DIA:
-            return t, e, motivo
-        t += timedelta(minutes=15)
-    return desde, "", "sin hueco en 14 dias"
+
+    def proximo(e):
+        """Primer hueco libre de la franja e desde 'desde' (respeta separacion y maximo por dia)."""
+        t = desde.replace(second=0, microsecond=0, minute=(desde.minute // 15) * 15)
+        for _ in range(14 * 96):
+            if f"{t.hour:02d}:{t.minute:02d}" == e and t >= desde and ocupados.get(t.strftime("%Y-%m-%d"), 0) < MAX_POR_DIA:
+                return t
+            t += timedelta(minutes=15)
+        return None
+
+    huecos = {e: proximo(e) for e in etiquetas}
+    huecos = {e: t for e, t in huecos.items() if t}
+    if not huecos:
+        return desde, "", "sin hueco en 14 dias"
+    # Solo se eligen franjas del primer dia con hueco: asi sale un video al dia y nunca se salta un dia por
+    # esperar una franja concreta.
+    primero = min(huecos.values())
+    cerca = {e: t for e, t in huecos.items() if t.date() == primero.date()}
+    # Para repartir se cuentan tambien los ya programados o publicados sin dato de 24 h todavia
+    plan = dict(cuenta)
+    for r in filas:
+        if (not any(r is x for x in excluir) and r["estado"] in ("pendiente", "publicando", "publicado")
+                and r.get("franja") and not r.get("views_24h")):
+            plan[r["franja"]] = plan.get(r["franja"], 0) + 1
+    confiables = {e: v for e, v in prom.items() if cuenta.get(e, 0) >= MIN_DATOS_FRANJA}
+    if not confiables:
+        # Aun no hay franja con datos suficientes: se reparte, la que menos datos tiene primero (y la mas temprana).
+        e = min(cerca, key=lambda x: (plan.get(x, 0), cerca[x]))
+        return cerca[e], e, (f"exploracion: {e} tiene {cuenta.get(e, 0)} de {MIN_DATOS_FRANJA} videos para comparar")
+    mejor = max(confiables, key=confiables.get)
+    if mejor in cerca and not (random.random() < EXPLORACION and len(cerca) > 1):
+        return cerca[mejor], mejor, (f"mejor franja: {mejor} ({confiables[mejor]:.0f} vistas a 24 h, "
+                                     f"{cuenta[mejor]} Reels)")
+    otras = [x for x in cerca if x != mejor] or list(cerca)
+    e = min(otras, key=lambda x: (plan.get(x, 0), cerca[x]))
+    return cerca[e], e, f"exploracion: se prueba {e} (la mejor con datos suficientes sigue siendo {mejor})"
 
 
 # ---------- pasos ----------
