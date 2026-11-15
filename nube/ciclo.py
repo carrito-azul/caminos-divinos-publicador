@@ -22,6 +22,8 @@ MED, FICHAS, REND = (os.path.join(RAIZ, n) for n in ("mediciones.csv", "fichas",
 FRANJAS = [(7, 0), (12, 30), (18, 0), (20, 0), (22, 30)]   # franjas que se prueban (hora Colombia)
 EXPLORACION = 0.25          # 1 de cada 4 veces prueba otra franja distinta a la mejor
 SEPARACION_MIN_HORAS = 14   # minimo entre publicaciones (14 h deja llegar a cualquier franja al dia siguiente)
+CARRUSEL = "carrusel"        # franja especial: los carruseles van aparte de los Reels y no cuentan para horarios
+CARRUSEL_DIAS, CARRUSEL_HORA = 2, (10, 0)   # el carrusel sale 2 dias despues de su Reel, a las 10:00
 MIN_DATOS_FRANJA = 3        # videos con dato de 24 h que necesita una franja para poder llamarse 'la mejor'
 MAX_POR_DIA = 1
 ANTICIPACION_MIN_HORAS = 1  # un video nuevo no se publica antes de 1 h
@@ -125,7 +127,7 @@ def salio_a_tiempo(r):
 def rendimiento(filas):
     datos = {}
     for r in filas:
-        if r.get("views_24h") and r.get("franja") and salio_a_tiempo(r):
+        if r.get("views_24h") and r.get("franja") and r["franja"] != CARRUSEL and salio_a_tiempo(r):
             datos.setdefault(r["franja"], []).append(float(r["views_24h"]))
     return {k: sum(v) / len(v) for k, v in datos.items()}, {k: len(v) for k, v in datos.items()}
 
@@ -134,7 +136,8 @@ def elegir_hora(filas, desde, excluir=None):
     excluir = excluir if isinstance(excluir, (list, tuple)) else [excluir]
     ocupados, ultima = {}, None
     for r in filas:
-        if any(r is x for x in excluir) or r["estado"] not in ("pendiente", "publicado", "publicando") or not r.get("fecha_hora"):
+        if (any(r is x for x in excluir) or r["estado"] not in ("pendiente", "publicado", "publicando")
+                or not r.get("fecha_hora") or r.get("franja") == CARRUSEL):
             continue
         ocupados[r["fecha_hora"][:10]] = ocupados.get(r["fecha_hora"][:10], 0) + 1
         t = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M")
@@ -165,7 +168,7 @@ def elegir_hora(filas, desde, excluir=None):
     plan = dict(cuenta)
     for r in filas:
         if (not any(r is x for x in excluir) and r["estado"] in ("pendiente", "publicando", "publicado")
-                and r.get("franja") and not r.get("views_24h")):
+                and r.get("franja") and r["franja"] != CARRUSEL and not r.get("views_24h")):
             plan[r["franja"]] = plan.get(r["franja"], 0) + 1
     confiables = {e: v for e, v in prom.items() if cuenta.get(e, 0) >= MIN_DATOS_FRANJA}
     if not confiables:
@@ -191,7 +194,19 @@ def tomar_cola(filas):
             continue
         ruta = os.path.join(COLA, nombre)
         d = json.load(open(ruta, encoding="utf-8"))
-        if not any(r["carpeta"] == d["carpeta"] for r in filas):
+        if d.get("tipo") == CARRUSEL and not any(r["carpeta"] == d["carpeta"] for r in filas):
+            reel = next((r for r in filas if r["carpeta"] == d.get("reel")), None)
+            base = datetime.strptime(reel["fecha_hora"], "%Y-%m-%d %H:%M") if reel else ahora()
+            t = (base + timedelta(days=CARRUSEL_DIAS)).replace(hour=CARRUSEL_HORA[0], minute=CARRUSEL_HORA[1])
+            minimo = ahora() + timedelta(hours=ANTICIPACION_MIN_HORAS)
+            while t < minimo:
+                t += timedelta(days=1)
+            filas.append({"id": f"CD-{d['carpeta']}", "carpeta": d["carpeta"], "asset": d["asset"], "tema": d["tema"],
+                          "gancho": d["ig"].splitlines()[0][:120], "aprobado": "Si", "estado": "pendiente",
+                          "detectado": d.get("detectado", ""), "fecha_hora": t.strftime("%Y-%m-%d %H:%M"),
+                          "franja": CARRUSEL, "motivo_hora": f"carrusel: {CARRUSEL_DIAS} dias despues de su Reel"})
+            log(f"Agendado carrusel {d['carpeta']} -> {t:%Y-%m-%d %H:%M}")
+        elif not any(r["carpeta"] == d["carpeta"] for r in filas):
             t, e, motivo = elegir_hora(filas, ahora() + timedelta(hours=ANTICIPACION_MIN_HORAS))
             filas.append({"id": f"CD-{d['carpeta']}", "carpeta": d["carpeta"], "asset": d["asset"], "tema": d["tema"],
                           "gancho": d["ig"].splitlines()[0][:120], "aprobado": "Si", "estado": "pendiente",
@@ -220,8 +235,39 @@ def crear_contenedor(ig, url, caption, portada_url=None):
     return cont, {"status_code": "TIEMPO", "status": "Instagram tardo mas de 10 minutos procesando"}
 
 
+def publicar_carrusel(r, d):
+    """Carrusel de imagenes (hasta 10): un contenedor por imagen y uno padre con todos (API oficial)."""
+    ig = ENV["IG_USER_ID"]
+    hijos, assets = [], []
+    for nombre in d["imagenes"][:10]:
+        a = asset_de(nombre)
+        if not a:
+            raise ErrorAPI(f"No esta la imagen {nombre} en GitHub")
+        assets.append(a)
+        hijos.append(meta("POST", f"{ig}/media", {"image_url": a["browser_download_url"],
+                                                    "is_carousel_item": "true"})["id"])
+    padre = meta("POST", f"{ig}/media", {"media_type": "CAROUSEL", "children": ",".join(hijos),
+                                          "caption": d["ig"]})["id"]
+    st = {}
+    for _ in range(20):
+        st = meta("GET", padre, {"fields": "status_code,status"})
+        if st.get("status_code") in ("FINISHED", "ERROR", "EXPIRED"):
+            break
+        time.sleep(15)
+    if st.get("status_code") != "FINISHED":
+        raise ErrorAPI(f"Instagram rechazo el carrusel: {st.get('status')}")
+    mid = meta("POST", f"{ig}/media_publish", {"creation_id": padre})["id"]
+    link = meta("GET", mid, {"fields": "permalink"}).get("permalink", "")
+    r.update(estado="publicado", ig_media_id=mid, permalink=link, publicado_real=ahora().strftime("%Y-%m-%d %H:%M"))
+    log(f"PUBLICADO carrusel {r['carpeta']} ({len(hijos)} imagenes): {link}")
+    for a in assets:
+        github("DELETE", f"/releases/assets/{a['id']}")
+
+
 def publicar(r):
     d = json.load(open(os.path.join(COLA, "textos", f"{r['carpeta']}.json"), encoding="utf-8"))
+    if r.get("franja") == CARRUSEL:
+        return publicar_carrusel(r, d)
     a = asset_de(r["asset"])
     if not a:
         raise ErrorAPI(f"No esta el video {r['asset']} en GitHub")
@@ -245,6 +291,16 @@ def publicar(r):
 
 def borrar_assets(r, a=None, portada=None):
     """Borra el video y la portada de GitHub cuando ya no hacen falta para ninguna plataforma."""
+    if r.get("franja") == CARRUSEL:
+        try:
+            d = json.load(open(os.path.join(COLA, "textos", f"{r['carpeta']}.json"), encoding="utf-8"))
+            for nombre in d.get("imagenes", []):
+                x = asset_de(nombre)
+                if x:
+                    github("DELETE", f"/releases/assets/{x['id']}")
+        except Exception as e:
+            log(f"No se pudieron borrar las imagenes del carrusel {r['carpeta']}: {e}")
+        return
     if YT_SUBIDA_ACTIVA and not r.get("yt_video_id"):
         return
     if a is None:
@@ -382,7 +438,8 @@ def medir_hitos(filas):
     if cambio_24h and rendimiento(filas) != franjas_antes:
         # el dato cambio lo que se sabe de los horarios: se vuelve a decidir la hora de lo pendiente (en orden;
         # cada uno respeta a los ya decididos, no a los que vienen despues)
-        pend = sorted([r for r in filas if r["estado"] == "pendiente"], key=lambda r: r["fecha_hora"])
+        pend = sorted([r for r in filas if r["estado"] == "pendiente" and r.get("franja") != CARRUSEL],
+                      key=lambda r: r["fecha_hora"])
         for i, r in enumerate(pend):
             if datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M") - ahora() < timedelta(hours=2):
                 continue
@@ -534,7 +591,8 @@ def subir_shorts_pendientes(filas):
     if not YT_SUBIDA_ACTIVA:
         return False
     for r in filas:
-        if r["estado"] == "pendiente" and not r.get("yt_video_id") and r.get("aprobado", "").lower() in ("si", "sí"):
+        if (r["estado"] == "pendiente" and not r.get("yt_video_id") and r.get("franja") != CARRUSEL
+                and r.get("aprobado", "").lower() in ("si", "sí")):
             try:
                 subir_short(r)
             except Exception as e:
