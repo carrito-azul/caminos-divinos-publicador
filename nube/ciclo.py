@@ -532,6 +532,31 @@ def subir_shorts_pendientes(filas):
 from analisis import escribir_rendimiento  # noqa: E402  (lee calendario, mediciones y fichas)
 
 
+SEGUIDORES = os.path.join(RAIZ, "seguidores.csv")
+
+
+def registrar_seguidores():
+    """Anota cada hora cuantos seguidores tiene la cuenta. La API no da seguidores por Reel; con este registro se
+    estima cuantos llegaron en las 24 h siguientes a cada publicacion (con un Reel al dia, la atribucion es clara)."""
+    filas = []
+    if os.path.exists(SEGUIDORES):
+        with open(SEGUIDORES, encoding="utf-8", newline="") as f:
+            filas = list(csv.reader(f))[1:]
+    if filas:
+        ultima = datetime.strptime(filas[-1][0], "%Y-%m-%d %H:%M")
+        if (ahora() - ultima).total_seconds() < 55 * 60:
+            return
+    n = meta("GET", ENV["IG_USER_ID"], {"fields": "followers_count"}).get("followers_count")
+    if n is None:
+        return
+    nuevo = not os.path.exists(SEGUIDORES)
+    with open(SEGUIDORES, "a", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        if nuevo:
+            w.writerow(["fecha", "seguidores"])
+        w.writerow([ahora().strftime("%Y-%m-%d %H:%M"), n])
+
+
 def main():
     if os.path.exists(ALERTA):
         os.remove(ALERTA)
@@ -542,7 +567,7 @@ def main():
                 guardar_cal(filas)
         except Exception as e:
             log(f"ERROR en {paso.__name__}: {type(e).__name__}: {e}")
-    for diario in (metricas_diarias, metricas_youtube, escribir_rendimiento):
+    for diario in (registrar_seguidores, metricas_diarias, metricas_youtube, escribir_rendimiento):
         try:
             diario()
         except Exception as e:
