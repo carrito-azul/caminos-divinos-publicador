@@ -80,7 +80,7 @@ def _videos():
     vids = []
     for carpeta in sorted(set(fichas) | {c for c, r in cal.items() if r.get("estado") == "publicado"}):
         r = cal.get(carpeta, {})
-        if r.get("estado") != "publicado":
+        if r.get("estado") != "publicado" or r.get("franja") == "carrusel":
             continue
         f = fichas.get(carpeta, {})
         hitos = meds.get(carpeta, {})
@@ -212,6 +212,28 @@ def construir():
                  f"{luces[2]} {_f(d.get('comp_1000'), '', 1)} | {_f(d.get('views'))} | {que} |")
     if not con24:
         L.append("| (todavía no hay videos con dato de 24 h) | | | | | |")
+
+    # --- Carruseles (van aparte: no son Reels y no cuentan para horarios ni para las 3 puertas)
+    cars = [r for r in _leer_csv(CAL) if r.get("franja") == "carrusel"]
+    if cars:
+        meds = {}
+        for m in _leer_csv(MED):
+            meds.setdefault(m["carpeta"], {})[m["hito"]] = m
+        L += ["", "## Carruseles", "",
+              "Versión en láminas de un Reel de herramienta, 2 días después. Su trabajo es el **guardado**: se compara "
+              "con los guardados de su propio Reel.", "",
+              "| Carrusel | Salió | Alcance 24 h | Guard./1.000 | Compart./1.000 | Su Reel: guard./1.000 |",
+              "|---|---|---|---|---|---|"]
+        reels = {v["carpeta"]: v for v in vids}
+        for r in cars:
+            m = meds.get(r["carpeta"], {}).get("24h") or {}
+            alc, sv, sh = _num(m.get("reach")), _num(m.get("saved")), _num(m.get("shares"))
+            g = round(sv / alc * 1000, 1) if alc and sv is not None else None
+            c = round(sh / alc * 1000, 1) if alc and sh is not None else None
+            base = reels.get(r["carpeta"][:-len("-carrusel")], {}).get("d24", {}).get("guard_1000")
+            sal = r.get("publicado_real") or f"programado {r.get('fecha_hora', '')}"
+            L.append(f"| `{r['carpeta']}` | {sal[5:] if r.get('publicado_real') else sal} | {_f(alc)} | "
+                     f"{_f(g, '', 1)} | {_f(c, '', 1)} | {_f(base, '', 1)} |")
 
     sin_ficha = [v["carpeta"] for v in vids if not v["ficha"]]
     if sin_ficha:
