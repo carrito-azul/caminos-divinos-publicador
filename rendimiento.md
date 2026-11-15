@@ -21,6 +21,20 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
+## Semáforo de 3 puertas
+
+Hipótesis (14 nov 2026, con 5 videos): para llegar lejos un video tiene que pasar **tres puertas en orden**. 1) **Gancho**: que no lo salten (salto < 30 %); si falla, Instagram casi no lo muestra. 2) **Retención**: que lo vean (> 50 % del video); el tiempo de visualización es la señal que más pesa. 3) **Compartidos**: que lo envíen (≥ 5 por 1.000); es la señal que más lo lleva a gente que no te sigue. *Ceguera* pasó la 1 y la 2 (pero 0 compartidos); *Persiguiendo* casi pasa la 3 (4,7); *Si… entonces* tuvo los mejores compartidos pero falló la 1 y casi nadie lo vio. Ninguno ha pasado las tres: **esa es la meta de cada video**. Si uno las pasa y no despega, la fórmula está incompleta.
+
+🟢 pasa · 🟡 cerca · 🔴 no pasa · ⚪ sin dato
+
+| Video | 1 · Gancho (salto) | 2 · Retención | 3 · Compart./1.000 | Vistas 24 h | Primera puerta que falla → qué arreglar |
+|---|---|---|---|---|---|
+| `2026-11-08-persiguiendo` | 🟡 34 % | 🔴 27 % | 🟡 4.7 | 1.764 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
+| `2026-11-09-ceguera-eleccion` | 🟢 23 % | 🟢 72 % | 🔴 0.0 | 1.368 | puerta 3 → la fórmula de compartidos (`guia/guion.md`): las 3 preguntas antes de escribir |
+| `2026-11-09-si-entonces` | 🔴 41 % | 🟡 35 % | 🟢 13.4 | 368 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
+| `2026-11-09-soltar` | 🟡 31 % | 🔴 26 % | 🟡 4.3 | 1.318 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
+| `2026-11-12-gracias` | 🟡 39 % | 🔴 27 % | 🔴 0.0 | 1.339 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
+
 ## Qué decisión funciona mejor
 
 Solo con videos que ya tienen dato de 24 h. Con 1-2 videos es una **pista**; con 3-9, una **tendencia**; con 10 o más, una **regla**. Se ordena por salto (lo que más predice si Instagram lo sigue mostrando).
