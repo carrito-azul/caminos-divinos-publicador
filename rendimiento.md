@@ -102,7 +102,7 @@ Sin datos todavía: reflexion, llamado_comentar, llamado_guardar, llamado_enviar
 ## Para el siguiente guion
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
-- **Ya en cola (aún no publicados):** `2026-11-12-talento-enterrado` prueba imagina; `2026-11-15-lista-de-manana` prueba sentimiento_no_dicho. No repitas esas pruebas.
+- **Ya en cola (aún no publicados):** `2026-11-12-talento-enterrado` prueba imagina; `2026-11-15-lista-de-manana` prueba sentimiento_no_dicho; `2026-11-15-no-es-pereza` prueba lista_numerada. No repitas esas pruebas.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
 - El primer segundo decide: el fotograma 0 ya en movimiento y una frase que hable directo a quien mira, escrita grande en pantalla.
