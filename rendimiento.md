@@ -2,10 +2,10 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-14 20:15 · Videos medidos: 5 · Con dato de 24 h: 5 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-14 22:30 · Videos medidos: 5 · Con dato de 24 h: 5 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
-- **Récord del sistema:** `2026-11-08-persiguiendo` con 1.765 reproducciones (medición 72h). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
+- **Récord del sistema:** `2026-11-08-persiguiendo` con 1.772 reproducciones (medición 7d). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
 - **Línea base (Reels de 2026 antes del sistema, 30):** mediana 128 reproducciones, salto 74 %, 7.7 s de reproducción media; el mejor llegó a 1.772.
 - **Metas por video** (referencia general hasta tener datos propios): salto < 40 %, retención > 50 % del video, ≥ 5 compartidos y ≥ 10 guardados por cada 1.000 cuentas alcanzadas. Los compartidos son lo que más empuja a no seguidores.
 
@@ -13,7 +13,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 
 | Video | Salió | Gancho (tipo) | Dur. | Vistas 24 h | Salto 24 h | Retención | Compart./1.000 | Guard./1.000 | Último dato |
 |---|---|---|---|---|---|---|---|---|---|
-| `2026-11-08-persiguiendo` | 11-07 22:30 | pregunta_directa | 61 s | 1.764 ≈ | 34 % | 27 % | 4.7 | 14.7 | 1.765 vistas (72h) |
+| `2026-11-08-persiguiendo` | 11-07 22:30 | pregunta_directa | 61 s | 1.764 ≈ | 34 % | 27 % | 4.7 | 14.7 | 1.772 vistas (7d) |
 | `2026-11-09-ceguera-eleccion` | 11-10 09:01 ⚠ | imagina | 57 s | 1.368 | 23 % | 72 % | 0.0 | 2.1 | 1.379 vistas (72h) |
 | `2026-11-09-si-entonces` | 11-11 12:31 | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 377 vistas (72h) |
 | `2026-11-09-soltar` | 11-12 18:01 | reto_al_espectador | 49 s | 1.318 | 31 % | 26 % | 4.3 | 8.6 | 1.318 vistas (24h) |
