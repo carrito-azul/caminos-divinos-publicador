@@ -22,7 +22,8 @@ CATALOGO = {
     "cierre_tipo": ["pregunta", "reflexion", "llamado_seguir", "llamado_comentar", "llamado_guardar", "llamado_enviar"],
 }
 VARIABLES = [("gancho_tipo", "Tipo de gancho"), ("emocion", "Emoción principal"), ("categoria", "Categoría"),
-             ("cierre_tipo", "Tipo de cierre"), ("relato_biblico", "Relato bíblico"), ("estilo_visual", "Estilo visual"), ("duracion", "Duración")]
+             ("cierre_tipo", "Tipo de cierre"), ("relato_biblico", "Relato bíblico"), ("estilo_visual", "Estilo visual"), ("duracion", "Duración"),
+             ("tema_universal", "Tema universal (pruebas que pasa, de 4)")]
 # Metas: lo que suelen tener los Reels que Instagram sigue empujando a no seguidores (referencia general,
 # no sale de tus datos; se ajusta cuando haya suficientes videos propios).
 META_SALTO = 40       # % que lo pasa en los primeros segundos: menos es mejor
