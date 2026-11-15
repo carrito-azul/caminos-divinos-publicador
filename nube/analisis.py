@@ -181,6 +181,37 @@ def construir():
     L.append("")
     L.append("⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. "
              "≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).")
+    # --- Semaforo de 3 puertas (hipotesis del creador y del asistente, 14 nov 2026)
+    def luz(x, verde, amarillo, menor_mejor=False):
+        if x is None:
+            return "⚪"
+        if menor_mejor:
+            return "🟢" if x < verde else ("🟡" if x <= amarillo else "🔴")
+        return "🟢" if x >= verde else ("🟡" if x >= amarillo else "🔴")
+    ARREGLO = {1: "el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto)",
+               2: "la montaña rusa (`guia/guion.md`): curvas cada ~5 s, primera respuesta a la mitad",
+               3: "la fórmula de compartidos (`guia/guion.md`): las 3 preguntas antes de escribir"}
+    L += ["", "## Semáforo de 3 puertas", "",
+          "Hipótesis (14 nov 2026, con 5 videos): para llegar lejos un video tiene que pasar **tres puertas en orden**. "
+          "1) **Gancho**: que no lo salten (salto < 30 %); si falla, Instagram casi no lo muestra. "
+          "2) **Retención**: que lo vean (> 50 % del video); el tiempo de visualización es la señal que más pesa. "
+          "3) **Compartidos**: que lo envíen (≥ 5 por 1.000); es la señal que más lo lleva a gente que no te sigue. "
+          "*Ceguera* pasó la 1 y la 2 (pero 0 compartidos); *Persiguiendo* casi pasa la 3 (4,7); *Si… entonces* tuvo los mejores "
+          "compartidos pero falló la 1 y casi nadie lo vio. Ninguno ha pasado las tres: **esa es la meta de cada video**. "
+          "Si uno las pasa y no despega, la fórmula está incompleta.", "",
+          "🟢 pasa · 🟡 cerca · 🔴 no pasa · ⚪ sin dato", "",
+          "| Video | 1 · Gancho (salto) | 2 · Retención | 3 · Compart./1.000 | Vistas 24 h | Primera puerta que falla → qué arreglar |",
+          "|---|---|---|---|---|---|"]
+    for v in sorted(con24, key=lambda v: v["cal"].get("publicado_real") or v["cal"].get("fecha_hora", "")):
+        d = v["d24"]
+        luces = [luz(d.get("skip"), 30, 40, True), luz(d.get("retencion"), 50, 30), luz(d.get("comp_1000"), 5, 2.5)]
+        falla = next((i + 1 for i, l in enumerate(luces) if l != "🟢"), None)
+        que = f"puerta {falla} → {ARREGLO[falla]}" if falla else "**pasó las tres**"
+        L.append(f"| `{v['carpeta']}` | {luces[0]} {_f(d.get('skip'), ' %')} | {luces[1]} {_f(d.get('retencion'), ' %')} | "
+                 f"{luces[2]} {_f(d.get('comp_1000'), '', 1)} | {_f(d.get('views'))} | {que} |")
+    if not con24:
+        L.append("| (todavía no hay videos con dato de 24 h) | | | | | |")
+
     sin_ficha = [v["carpeta"] for v in vids if not v["ficha"]]
     if sin_ficha:
         L.append(f"Sin ficha (no cuentan para comparar decisiones): {', '.join(sin_ficha)}.")
