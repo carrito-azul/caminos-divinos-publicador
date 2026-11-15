@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-14 12:45 · Videos medidos: 5 · Con dato de 24 h: 4 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-14 20:15 · Videos medidos: 5 · Con dato de 24 h: 5 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-08-persiguiendo` con 1.765 reproducciones (medición 72h). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
@@ -17,7 +17,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-09-ceguera-eleccion` | 11-10 09:01 ⚠ | imagina | 57 s | 1.368 | 23 % | 72 % | 0.0 | 2.1 | 1.379 vistas (72h) |
 | `2026-11-09-si-entonces` | 11-11 12:31 | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 377 vistas (72h) |
 | `2026-11-09-soltar` | 11-12 18:01 | reto_al_espectador | 49 s | 1.318 | 31 % | 26 % | 4.3 | 8.6 | 1.318 vistas (24h) |
-| `2026-11-12-gracias` | 11-13 20:01 | historia | 50 s | — | — | — | — | — | 976 vistas (3h) |
+| `2026-11-12-gracias` | 11-13 20:01 | historia | 50 s | 1.339 | 39 % | 27 % | 0.0 | 2.5 | 1.339 vistas (24h) |
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
@@ -32,9 +32,10 @@ Solo con videos que ya tienen dato de 24 h. Con 1-2 videos es una **pista**; con
 | imagina | 1 | 1.368 | 23 % | 72 % | 0.0 | pista (1 video) |
 | reto_al_espectador | 1 | 1.318 | 31 % | 26 % | 4.3 | pista (1 video) |
 | pregunta_directa | 1 | 1.764 | 34 % | 27 % | 4.7 | pista (1 video) |
+| historia | 1 | 1.339 | 39 % | 27 % | 0.0 | pista (1 video) |
 | dato_impactante | 1 | 368 | 41 % | 35 % | 13.4 | pista (1 video) |
 
-Sin datos todavía: historia, afirmacion_contraria, promesa.
+Sin datos todavía: afirmacion_contraria, promesa.
 
 **Emoción principal**
 
@@ -42,7 +43,7 @@ Sin datos todavía: historia, afirmacion_contraria, promesa.
 |---|---|---|---|---|---|---|
 | curiosidad | 1 | 1.368 | 23 % | 72 % | 0.0 | pista (1 video) |
 | alivio | 1 | 1.318 | 31 % | 26 % | 4.3 | pista (1 video) |
-| identificacion | 2 | 1.066 | 38 % | 31 % | 9.1 | pista |
+| identificacion | 3 | 1.157 | 38 % | 30 % | 6.0 | tendencia |
 
 **Categoría**
 
@@ -50,14 +51,15 @@ Sin datos todavía: historia, afirmacion_contraria, promesa.
 |---|---|---|---|---|---|---|
 | psicologia_cotidiana | 2 | 1.566 | 29 % | 50 % | 2.4 | pista |
 | emociones | 1 | 1.318 | 31 % | 26 % | 4.3 | pista (1 video) |
+| relaciones | 1 | 1.339 | 39 % | 27 % | 0.0 | pista (1 video) |
 | habitos | 1 | 368 | 41 % | 35 % | 13.4 | pista (1 video) |
 
 **Tipo de cierre**
 
 | Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
 |---|---|---|---|---|---|---|
-| llamado_seguir | 1 | 1.318 | 31 % | 26 % | 4.3 | pista (1 video) |
 | pregunta | 3 | 1.167 | 33 % | 45 % | 6.0 | tendencia |
+| llamado_seguir | 2 | 1.328 | 35 % | 26 % | 2.1 | pista |
 
 Sin datos todavía: reflexion, llamado_comentar, llamado_guardar, llamado_enviar.
 
@@ -65,7 +67,7 @@ Sin datos todavía: reflexion, llamado_comentar, llamado_guardar, llamado_enviar
 
 | Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
 |---|---|---|---|---|---|---|
-| sin relato | 4 | 1.204 | 32 % | 40 % | 5.6 | tendencia |
+| sin relato | 5 | 1.231 | 34 % | 37 % | 4.5 | tendencia |
 
 **Estilo visual**
 
@@ -73,13 +75,13 @@ Sin datos todavía: reflexion, llamado_comentar, llamado_guardar, llamado_enviar
 |---|---|---|---|---|---|---|
 | silueta en oscuridad + cartas | 1 | 1.368 | 23 % | 72 % | 0.0 | pista (1 video) |
 | silueta + metáforas luminosas | 1 | 1.764 | 34 % | 27 % | 4.7 | pista (1 video) |
-| personajes 2D en escenarios cotidianos | 2 | 843 | 36 % | 30 % | 8.8 | pista |
+| personajes 2D en escenarios cotidianos | 3 | 1.008 | 37 % | 29 % | 5.9 | tendencia |
 
 **Duración**
 
 | Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
 |---|---|---|---|---|---|---|
-| 50-60 s | 1 | 1.368 | 23 % | 72 % | 0.0 | pista (1 video) |
+| 50-60 s | 2 | 1.354 | 31 % | 50 % | 0.0 | pista |
 | más de 60 s | 1 | 1.764 | 34 % | 27 % | 4.7 | pista (1 video) |
 | 40-50 s | 2 | 843 | 36 % | 30 % | 8.8 | pista |
 
@@ -87,7 +89,6 @@ Sin datos todavía: reflexion, llamado_comentar, llamado_guardar, llamado_enviar
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
 - **Ya en cola (aún no publicados):** `2026-11-12-talento-enterrado` prueba imagina. No repitas esas pruebas.
-- **Esperando datos:** 2026-11-12-gracias (aún sin 24 h). No saques conclusiones de ellos todavía.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
 - El primer segundo decide: el fotograma 0 ya en movimiento y una frase que hable directo a quien mira, escrita grande en pantalla.
