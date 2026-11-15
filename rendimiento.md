@@ -35,6 +35,14 @@ Hipótesis (14 nov 2026, con 5 videos): para llegar lejos un video tiene que pas
 | `2026-11-09-soltar` | 🟡 31 % | 🔴 26 % | 🟡 4.3 | 1.318 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
 | `2026-11-12-gracias` | 🟡 39 % | 🔴 27 % | 🔴 0.0 | 1.339 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
 
+## Carruseles
+
+Versión en láminas de un Reel de herramienta, 2 días después. Su trabajo es el **guardado**: se compara con los guardados de su propio Reel.
+
+| Carrusel | Salió | Alcance 24 h | Guard./1.000 | Compart./1.000 | Su Reel: guard./1.000 |
+|---|---|---|---|---|---|
+| `2026-11-15-lista-de-manana-carrusel` | programado 2026-11-18 10:00 | — | — | — | — |
+
 ## Qué decisión funciona mejor
 
 Solo con videos que ya tienen dato de 24 h. Con 1-2 videos es una **pista**; con 3-9, una **tendencia**; con 10 o más, una **regla**. Se ordena por salto (lo que más predice si Instagram lo sigue mostrando).
