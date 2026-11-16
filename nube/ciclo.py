@@ -40,7 +40,7 @@ ENV = {k: os.environ.get(k, "") for k in ("FB_PAGE_TOKEN", "IG_USER_ID", "GRAPH_
                                           "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "YT_REFRESH_TOKEN")}
 HIST_YT = os.path.join(RAIZ, "historico_youtube.csv")
 # Se pone en True cuando YouTube apruebe la auditoria (antes, todo lo subido por API queda privado para siempre)
-YT_SUBIDA_ACTIVA = False
+YT_SUBIDA_ACTIVA = True   # 16 nov 2026: YouTube ya no deja privados los videos de la API (prueba no listada OK)
 
 
 def ahora():
@@ -448,6 +448,11 @@ def medir_hitos(filas):
             r.update(fecha_hora=t.strftime("%Y-%m-%d %H:%M"), franja=e, motivo_hora=motivo)
             if r["fecha_hora"] != antes:
                 log(f"Replanificado {r['carpeta']}: {antes} -> {r['fecha_hora']} ({motivo})")
+                if r.get("yt_video_id"):
+                    try:  # el Short sigue a su Reel: misma hora en las dos plataformas
+                        yt_reprogramar(r)
+                    except Exception as ex:
+                        log(f"No se pudo mover el Short de {r['carpeta']}: {ex}")
     return cambio_24h
 
 
@@ -585,6 +590,16 @@ def subir_short(r):
                cuerpo, {"Authorization": f"Bearer {yt_token()}", "Content-Type": f"multipart/related; boundary={limite}"})
     r.update(yt_video_id=res["id"], yt_estado="programado")
     log(f"Short subido y programado para {r['fecha_hora']}: https://youtube.com/shorts/{res['id']}")
+
+
+def yt_reprogramar(r):
+    """Mueve la hora de salida de un Short ya subido (cuando su Reel se replanifica)."""
+    publicar_en = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M").replace(tzinfo=TZ).isoformat()
+    http("PUT", "https://www.googleapis.com/youtube/v3/videos?part=status",
+         json.dumps({"id": r["yt_video_id"], "status": {"privacyStatus": "private", "publishAt": publicar_en,
+                                                        "selfDeclaredMadeForKids": False}}).encode(),
+         {"Authorization": f"Bearer {yt_token()}", "Content-Type": "application/json"})
+    log(f"Short de {r['carpeta']} movido a {r['fecha_hora']}")
 
 
 def subir_shorts_pendientes(filas):
