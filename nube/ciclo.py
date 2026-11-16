@@ -770,6 +770,45 @@ def comentar_shorts(filas):
         log(f"Comentario publicado en el Short {carpeta}: «{texto}» (fijalo desde la app de YouTube)")
 
 
+# ---------- miniatura de cada Short (la misma portada de Instagram, la que usa el calendario web) ----------
+YT_MINIATURAS = os.path.join(RAIZ, "yt_miniaturas.csv")
+MINIATURA_MANUAL = {"2v5sb-Kz_N4"}   # Talento enterrado: Cesar la subio a mano el 16 nov
+
+
+def poner_miniaturas(filas):
+    if not YT_SUBIDA_ACTIVA:
+        return
+    hechos = set(MINIATURA_MANUAL)
+    if os.path.exists(YT_MINIATURAS):
+        with open(YT_MINIATURAS, encoding="utf-8", newline="") as fh:
+            hechos |= {r["yt_video_id"] for r in csv.DictReader(fh)}
+    candidatos = [(r["carpeta"], r["yt_video_id"]) for r in filas if r.get("yt_video_id") and r.get("franja") != CARRUSEL]
+    if os.path.exists(YT_ANTERIORES):
+        with open(YT_ANTERIORES, encoding="utf-8", newline="") as fh:
+            candidatos += [(h["carpeta"], h["yt_video_id"]) for h in csv.DictReader(fh) if h.get("yt_video_id")]
+    for carpeta, vid in candidatos[:]:
+        if vid in hechos:
+            continue
+        img = os.path.join(RAIZ, "docs", "portadas", f"{carpeta}.jpg")
+        if not os.path.exists(img):
+            continue
+        try:
+            http("POST", f"https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={vid}&uploadType=media",
+                 open(img, "rb").read(), {"Authorization": f"Bearer {yt_token()}", "Content-Type": "image/jpeg"})
+        except ErrorAPI as e:
+            if ahora().minute < 15:
+                log(f"No se pudo poner la miniatura del Short {carpeta}: {str(e)[:150]}")
+            return
+        nuevo = not os.path.exists(YT_MINIATURAS)
+        with open(YT_MINIATURAS, "a", encoding="utf-8", newline="") as fh:
+            w = csv.writer(fh, lineterminator="\n")
+            if nuevo:
+                w.writerow(["carpeta", "yt_video_id", "fecha"])
+            w.writerow([carpeta, vid, ahora().strftime("%Y-%m-%d %H:%M")])
+        hechos.add(vid)
+        log(f"Miniatura puesta en el Short {carpeta}")
+
+
 from analisis import escribir_rendimiento  # noqa: E402  (lee calendario, mediciones y fichas)
 
 
@@ -802,7 +841,7 @@ def main():
     if os.path.exists(ALERTA):
         os.remove(ALERTA)
     filas = leer_cal()
-    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos, comentar_shorts):
+    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos, comentar_shorts, poner_miniaturas):
         try:
             if paso(filas):
                 guardar_cal(filas)
