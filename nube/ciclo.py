@@ -723,6 +723,53 @@ def subir_anteriores():
     log(f"Short anterior {d['carpeta']} subido y programado para {cuando:%Y-%m-%d %H:%M}: https://youtube.com/shorts/{res['id']}")
 
 
+# ---------- comentario con pregunta en cada Short (Cesar lo fija a mano desde la app) ----------
+COMENTARIOS_YT = os.path.join(RAIZ, "comentarios_yt.json")   # {carpeta: texto} para Shorts sin yt_comentario
+YT_COMENTADOS = os.path.join(RAIZ, "yt_comentados.csv")
+
+
+def comentar_shorts(filas):
+    if not YT_SUBIDA_ACTIVA:
+        return
+    hechos = set()
+    if os.path.exists(YT_COMENTADOS):
+        with open(YT_COMENTADOS, encoding="utf-8", newline="") as fh:
+            hechos = {r["yt_video_id"] for r in csv.DictReader(fh)}
+    extra = json.load(open(COMENTARIOS_YT, encoding="utf-8")) if os.path.exists(COMENTARIOS_YT) else {}
+    candidatos = [(r["carpeta"], r["yt_video_id"], r["fecha_hora"]) for r in filas
+                  if r.get("yt_video_id") and r.get("franja") != CARRUSEL]
+    if os.path.exists(YT_ANTERIORES):
+        with open(YT_ANTERIORES, encoding="utf-8", newline="") as fh:
+            candidatos += [(h["carpeta"], h["yt_video_id"], h["publicar_en"]) for h in csv.DictReader(fh) if h.get("yt_video_id")]
+    for carpeta, vid, cuando in candidatos:
+        if vid in hechos:
+            continue
+        salida = datetime.strptime(cuando, "%Y-%m-%d %H:%M")
+        if not (salida <= ahora() <= salida + timedelta(days=3)):   # solo cuando ya salio, y no Shorts viejos
+            continue
+        texto = extra.get(carpeta, "")
+        ruta = os.path.join(COLA, "textos", f"{carpeta}.json")
+        if not texto and os.path.exists(ruta):
+            texto = json.load(open(ruta, encoding="utf-8")).get("yt_comentario", "")
+        if not texto:
+            continue
+        try:
+            res = http("POST", "https://www.googleapis.com/youtube/v3/commentThreads?part=snippet",
+                       json.dumps({"snippet": {"videoId": vid, "topLevelComment": {"snippet": {"textOriginal": texto}}}}).encode(),
+                       {"Authorization": f"Bearer {yt_token()}", "Content-Type": "application/json"})
+        except ErrorAPI as e:
+            if ahora().minute < 15:   # sin permiso de comentar todavia: se avisa una vez por hora, no cada ciclo
+                log(f"No se pudo comentar el Short {carpeta}: {str(e)[:150]}")
+            return
+        nuevo = not os.path.exists(YT_COMENTADOS)
+        with open(YT_COMENTADOS, "a", encoding="utf-8", newline="") as fh:
+            w = csv.writer(fh, lineterminator="\n")
+            if nuevo:
+                w.writerow(["carpeta", "yt_video_id", "comentario_id", "fecha"])
+            w.writerow([carpeta, vid, res.get("id", ""), ahora().strftime("%Y-%m-%d %H:%M")])
+        log(f"Comentario publicado en el Short {carpeta}: «{texto}» (fijalo desde la app de YouTube)")
+
+
 from analisis import escribir_rendimiento  # noqa: E402  (lee calendario, mediciones y fichas)
 
 
@@ -755,7 +802,7 @@ def main():
     if os.path.exists(ALERTA):
         os.remove(ALERTA)
     filas = leer_cal()
-    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos):
+    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos, comentar_shorts):
         try:
             if paso(filas):
                 guardar_cal(filas)
