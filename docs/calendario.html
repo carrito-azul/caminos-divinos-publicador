@@ -53,6 +53,8 @@
   .pendiente{background:rgba(242,179,92,.18);color:var(--dorado)}
   .publicado{background:rgba(111,211,161,.16);color:var(--verde)}
   .error{background:rgba(255,122,122,.18);color:var(--rojo)}
+  .nada{background:rgba(169,156,196,.12);color:var(--suave)}
+  .leyenda{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.78rem;color:var(--suave);margin:6px 0 2px}
 
   .agenda{display:none}
   .fila{display:flex;gap:12px;background:var(--panel);border:1px solid var(--linea);border-radius:14px;
@@ -86,6 +88,9 @@
   <div class="sub" id="estado">Cargando el calendario…</div>
 </header>
 <main>
+  <div class="leyenda"><span><span class="chip publicado">IG ✓</span> publicado</span>
+    <span><span class="chip pendiente">YT ⏳</span> programado</span><span><span class="chip error">IG ⚠</span> error</span>
+    <span><span class="chip nada">YT –</span> no subido a YouTube</span><span>IG = Instagram · YT = YouTube</span></div>
   <div class="seccion">Próximos en salir</div>
   <div class="proximos" id="proximos"></div>
 
@@ -146,7 +151,17 @@ const may = s => s.charAt(0).toUpperCase()+s.slice(1);
 const diaLargo = d => may(d.toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"long"}));
 const portada = r => `portadas/${r.carpeta}.jpg`;
 const fondo = r => `background-image:url('${portada(r)}')`;
-const chip = r => { const e=ESTADOS[r.estado]||r.estado; const cls=e==="programado"?"pendiente":e; return `<span class="chip ${cls}">${e}</span>`; };
+const igEstado = r => { const e=ESTADOS[r.estado]||(String(r.estado).startsWith("error")?"error":r.estado); return e; };
+const ytEstado = r => {
+  if (r.franja==="carrusel") return null;                       // los carruseles solo van a Instagram
+  if (String(r.yt_estado||"").startsWith("error")) return "error";
+  if (r.yt_video_id) return (new Date() >= r._f) ? "publicado" : "programado";
+  return "sin subir";
+};
+const ICONO = {programado:"⏳", publicado:"✓", error:"⚠", "sin subir":"–"};
+const badge = (red, e) => { if (!e) return ""; const cls = e==="programado"?"pendiente":(e==="sin subir"?"nada":e);
+  return `<span class="chip ${cls}" title="${red==="IG"?"Instagram":"YouTube"}: ${e}">${red} ${ICONO[e]||""}</span>`; };
+const chip = r => badge("IG", igEstado(r)) + badge("YT", ytEstado(r));
 const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num = n => Number(n).toLocaleString("es-CO");
 
@@ -158,7 +173,10 @@ function abrir(i){
   detGancho.textContent=r.gancho?`Gancho: «${r.gancho}»`:"";
   detDatos.textContent=r.views_24h?`${num(r.views_24h)} vistas en 24 h · salto ${r.skip_24h} %`:
     (r.estado==="publicado"?"Esperando la medición de 24 h.":(r.motivo_hora||""));
-  detLink.innerHTML=r.permalink?`<a href="${r.permalink}" target="_blank" rel="noopener">Ver en Instagram ↗</a>`:"";
+  const enlaces=[];
+  if (r.permalink) enlaces.push(`<a href="${r.permalink}" target="_blank" rel="noopener">Ver en Instagram ↗</a>`);
+  if (r.yt_video_id) enlaces.push(`<a href="https://youtube.com/shorts/${r.yt_video_id}" target="_blank" rel="noopener">Ver en YouTube ↗</a>`);
+  detLink.innerHTML=enlaces.join(" &nbsp;·&nbsp; ");
   det.showModal();
 }
 
