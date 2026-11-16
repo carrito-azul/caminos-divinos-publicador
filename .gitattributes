@@ -1,0 +1,6 @@
+# Archivos que solo crecen (una linea nueva por medicion): si dos ciclos guardan a la vez, se juntan las
+# lineas de los dos en vez de chocar (14-16 nov 2026: dos ciclos fallaron por choque en seguidores.csv).
+seguidores.csv merge=union
+mediciones.csv merge=union
+registro.log merge=union
+historico.csv merge=union
