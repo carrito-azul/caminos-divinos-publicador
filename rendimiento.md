@@ -6,7 +6,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-08-persiguiendo` con 1.772 reproducciones (medición 7d). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
-- **Línea base (Reels de 2026 antes del sistema, 30):** mediana 128 reproducciones, salto 74 %, 7.7 s de reproducción media; el mejor llegó a 1.772.
+- **Línea base (Reels de 2026 antes del sistema, 31):** mediana 132 reproducciones, salto 71 %, 7.7 s de reproducción media; el mejor llegó a 1.772.
 - **Metas por video** (referencia general hasta tener datos propios): salto < 40 %, retención > 50 % del video, ≥ 5 compartidos y ≥ 10 guardados por cada 1.000 cuentas alcanzadas. Los compartidos son lo que más empuja a no seguidores.
 
 ## Cada video
