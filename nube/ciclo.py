@@ -617,6 +617,80 @@ def subir_shorts_pendientes(filas):
     return False
 
 
+# ---------- Shorts de Reels anteriores (los publicados en Instagram antes de activar YouTube) ----------
+COLA_YT = os.path.join(RAIZ, "cola_yt")             # <carpeta>.json que deja la PC, con el video en el release
+YT_ANTERIORES = os.path.join(RAIZ, "yt_anteriores.csv")
+COLS_YT_ANT = ["carpeta", "yt_video_id", "publicar_en", "subido"]
+ANTERIORES_HORA = (15, 0)
+ANTERIORES_MAX_DIA = 2   # cada subida gasta 1.600 de los 10.000 puntos diarios; quedan de sobra para los Shorts nuevos
+
+
+def dia_cupo(fecha_col):
+    """El cupo de la API de YouTube se reinicia a medianoche de California, no de Colombia."""
+    return fecha_col.replace(tzinfo=TZ).astimezone(ZoneInfo("America/Los_Angeles")).date()
+
+
+def subir_anteriores():
+    if not YT_SUBIDA_ACTIVA or not os.path.isdir(COLA_YT):
+        return
+    trabajos = []
+    for f in os.listdir(COLA_YT):
+        if f.endswith(".json"):
+            d = json.load(open(os.path.join(COLA_YT, f), encoding="utf-8"))
+            trabajos.append((d.get("orden", 99), f, d))
+    if not trabajos:
+        return
+    hechas = []
+    if os.path.exists(YT_ANTERIORES):
+        with open(YT_ANTERIORES, encoding="utf-8", newline="") as fh:
+            hechas = list(csv.DictReader(fh))
+    hoy = dia_cupo(ahora())
+    if sum(1 for h in hechas if h.get("subido") and dia_cupo(datetime.strptime(h["subido"], "%Y-%m-%d %H:%M")) == hoy) \
+            >= ANTERIORES_MAX_DIA:
+        return
+    _, archivo, d = sorted(trabajos, key=lambda t: (t[0], t[1]))[0]
+    ruta_json = os.path.join(COLA_YT, archivo)
+    if d["carpeta"] in {h["carpeta"] for h in hechas if h.get("yt_video_id")}:
+        os.remove(ruta_json)
+        return
+    a = asset_de(d["asset"])
+    if not a:
+        log(f"Short anterior {d['carpeta']}: no esta el video {d['asset']} en GitHub; lo saco de la cola")
+        os.remove(ruta_json)
+        return
+    # hueco: 15:00 del primer dia libre, despues del ultimo programado y con 3 h de margen
+    cuando = ahora().replace(hour=ANTERIORES_HORA[0], minute=ANTERIORES_HORA[1], second=0, microsecond=0)
+    if cuando < ahora() + timedelta(hours=3):
+        cuando += timedelta(days=1)
+    usados = [datetime.strptime(h["publicar_en"], "%Y-%m-%d %H:%M") for h in hechas if h.get("publicar_en")]
+    if usados and max(usados) >= cuando:
+        cuando = max(usados).replace(hour=ANTERIORES_HORA[0], minute=ANTERIORES_HORA[1]) + timedelta(days=1)
+    video = urllib.request.urlopen(a["browser_download_url"], timeout=600).read()
+    meta_json = json.dumps({"snippet": {"title": d["titulo"][:100], "description": d["descripcion"], "categoryId": "22",
+                                        "defaultLanguage": "es"},
+                            "status": {"privacyStatus": "private", "publishAt": cuando.replace(tzinfo=TZ).isoformat(),
+                                       "selfDeclaredMadeForKids": False}}).encode()
+    limite = "----caminosdivinos"
+    cuerpo = (f"--{limite}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n").encode() + meta_json + \
+             (f"\r\n--{limite}\r\nContent-Type: video/mp4\r\n\r\n").encode() + video + f"\r\n--{limite}--".encode()
+    try:
+        res = http("POST", "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status",
+                   cuerpo, {"Authorization": f"Bearer {yt_token()}", "Content-Type": f"multipart/related; boundary={limite}"})
+    except ErrorAPI as e:
+        if "quota" in str(e).lower():
+            return  # cupo del dia agotado: se intenta en el proximo dia de cupo
+        raise
+    hechas.append({"carpeta": d["carpeta"], "yt_video_id": res["id"], "publicar_en": cuando.strftime("%Y-%m-%d %H:%M"),
+                   "subido": ahora().strftime("%Y-%m-%d %H:%M")})
+    with open(YT_ANTERIORES, "w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=COLS_YT_ANT, lineterminator="\n")
+        w.writeheader()
+        w.writerows({k: h.get(k, "") for k in COLS_YT_ANT} for h in hechas)
+    os.remove(ruta_json)
+    github("DELETE", f"/releases/assets/{a['id']}")
+    log(f"Short anterior {d['carpeta']} subido y programado para {cuando:%Y-%m-%d %H:%M}: https://youtube.com/shorts/{res['id']}")
+
+
 from analisis import escribir_rendimiento  # noqa: E402  (lee calendario, mediciones y fichas)
 
 
@@ -655,7 +729,7 @@ def main():
                 guardar_cal(filas)
         except Exception as e:
             log(f"ERROR en {paso.__name__}: {type(e).__name__}: {e}")
-    for diario in (registrar_seguidores, metricas_diarias, metricas_youtube, escribir_rendimiento):
+    for diario in (subir_anteriores, registrar_seguidores, metricas_diarias, metricas_youtube, escribir_rendimiento):
         try:
             diario()
         except Exception as e:
