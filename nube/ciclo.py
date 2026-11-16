@@ -518,6 +518,22 @@ def yt(url, params=None):
     return http("GET", url + "?" + urllib.parse.urlencode(params or {}), headers={"Authorization": f"Bearer {yt_token()}"})
 
 
+def yt_ya_subido(titulo):
+    """Busca entre las ultimas subidas del canal un video con el mismo titulo (evita duplicados si un ciclo
+    subio el Short pero no alcanzo a guardar el calendario). Devuelve su id o None."""
+    try:
+        canal = yt("https://www.googleapis.com/youtube/v3/channels", {"part": "contentDetails", "mine": "true"})
+        lista = canal["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+        items = yt("https://www.googleapis.com/youtube/v3/playlistItems",
+                   {"part": "snippet", "playlistId": lista, "maxResults": 25}).get("items", [])
+        for it in items:
+            if it["snippet"]["title"].strip() == titulo.strip():
+                return it["snippet"]["resourceId"]["videoId"]
+    except Exception as e:
+        log(f"No se pudo revisar si el Short ya estaba subido: {e}")
+    return None
+
+
 def metricas_youtube():
     """Una vez al dia: metricas acumuladas de cada video del canal (YouTube Analytics tarda 2-3 dias en consolidar)."""
     if not ENV["YT_REFRESH_TOKEN"] or ahora().hour < 6:
@@ -576,6 +592,12 @@ def subir_short(r):
     a = asset_de(r["asset"])
     datos = urllib.request.urlopen(a["browser_download_url"], timeout=300).read()
     titulo = (d.get("yt_titulo") or d["tema"])[:100]
+    previo = yt_ya_subido(titulo)
+    if previo:
+        r.update(yt_video_id=previo, yt_estado="programado")
+        yt_reprogramar(r)
+        log(f"Short de {r['carpeta']} ya estaba en YouTube ({previo}); se reutiliza y se ajusta su hora")
+        return
     desc = d.get("yt_descripcion") or d["ig"]
     if "#shorts" not in desc.lower():
         desc += "\n\n#Shorts"
@@ -665,7 +687,17 @@ def subir_anteriores():
     usados = [datetime.strptime(h["publicar_en"], "%Y-%m-%d %H:%M") for h in hechas if h.get("publicar_en")]
     if usados and max(usados) >= cuando:
         cuando = max(usados).replace(hour=ANTERIORES_HORA[0], minute=ANTERIORES_HORA[1]) + timedelta(days=1)
-    video = urllib.request.urlopen(a["browser_download_url"], timeout=600).read()
+    previo = yt_ya_subido(d["titulo"][:100])
+    if previo:
+        res = {"id": previo}
+        http("PUT", "https://www.googleapis.com/youtube/v3/videos?part=status",
+             json.dumps({"id": previo, "status": {"privacyStatus": "private", "publishAt": cuando.replace(tzinfo=TZ).isoformat(),
+                                                  "selfDeclaredMadeForKids": False}}).encode(),
+             {"Authorization": f"Bearer {yt_token()}", "Content-Type": "application/json"})
+        log(f"Short anterior {d['carpeta']} ya estaba en YouTube ({previo}); se reutiliza")
+    else:
+        res = None
+    video = b"" if res else urllib.request.urlopen(a["browser_download_url"], timeout=600).read()
     meta_json = json.dumps({"snippet": {"title": d["titulo"][:100], "description": d["descripcion"], "categoryId": "22",
                                         "defaultLanguage": "es"},
                             "status": {"privacyStatus": "private", "publishAt": cuando.replace(tzinfo=TZ).isoformat(),
@@ -674,8 +706,8 @@ def subir_anteriores():
     cuerpo = (f"--{limite}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n").encode() + meta_json + \
              (f"\r\n--{limite}\r\nContent-Type: video/mp4\r\n\r\n").encode() + video + f"\r\n--{limite}--".encode()
     try:
-        res = http("POST", "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status",
-                   cuerpo, {"Authorization": f"Bearer {yt_token()}", "Content-Type": f"multipart/related; boundary={limite}"})
+        res = res or http("POST", "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status",
+                          cuerpo, {"Authorization": f"Bearer {yt_token()}", "Content-Type": f"multipart/related; boundary={limite}"})
     except ErrorAPI as e:
         if "quota" in str(e).lower():
             return  # cupo del dia agotado: se intenta en el proximo dia de cupo
