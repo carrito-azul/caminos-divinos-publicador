@@ -122,6 +122,7 @@
 
 <script>
 const CSV = "https://raw.githubusercontent.com/carrito-azul/caminos-divinos-publicador/main/calendario.csv";
+const CSV_YT = "https://raw.githubusercontent.com/carrito-azul/caminos-divinos-publicador/main/yt_anteriores.csv";
 const DIAS = ["lun","mar","mié","jue","vie","sáb","dom"];
 const ESTADOS = {pendiente:"programado", publicando:"programado", publicado:"publicado", error:"error"};
 let reels = [], vista = new Date();
@@ -155,7 +156,7 @@ const igEstado = r => { const e=ESTADOS[r.estado]||(String(r.estado).startsWith(
 const ytEstado = r => {
   if (r.franja==="carrusel") return null;                       // los carruseles solo van a Instagram
   if (String(r.yt_estado||"").startsWith("error")) return "error";
-  if (r.yt_video_id) return (new Date() >= r._f) ? "publicado" : "programado";
+  if (r.yt_video_id) return (new Date() >= (r._yt || r._f)) ? "publicado" : "programado";
   return "sin subir";
 };
 const ICONO = {programado:"⏳", publicado:"✓", error:"⚠", "sin subir":"–"};
@@ -176,6 +177,7 @@ function abrir(i){
   const enlaces=[];
   if (r.permalink) enlaces.push(`<a href="${r.permalink}" target="_blank" rel="noopener">Ver en Instagram ↗</a>`);
   if (r.yt_video_id) enlaces.push(`<a href="https://youtube.com/shorts/${r.yt_video_id}" target="_blank" rel="noopener">Ver en YouTube ↗</a>`);
+  if (r._yt) enlaces.push(`<span>YouTube: ${diaLargo(r._yt)} · ${hora(r._yt)}</span>`);
   detLink.innerHTML=enlaces.join(" &nbsp;·&nbsp; ");
   det.showModal();
 }
@@ -223,8 +225,15 @@ ant.onclick=()=>{vista=new Date(vista.getFullYear(),vista.getMonth()-1,1);pintar
 sig.onclick=()=>{vista=new Date(vista.getFullYear(),vista.getMonth()+1,1);pintar()};
 hoyBtn.onclick=()=>{vista=new Date();pintar()};
 
-fetch(CSV+"?t="+Date.now()).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(t=>{
-  reels=parseCSV(t).filter(r=>r.fecha_hora).map(r=>({...r,_f:fecha(r)})).sort((a,b)=>a._f-b._f);
+// Shorts de Reels anteriores (los sube la PC escalonados; su fecha de YouTube es distinta a la de Instagram)
+const ytPrevio = fetch(CSV_YT+"?t="+Date.now()).then(r=>r.ok?r.text():"").then(t=>t?parseCSV(t):[]).catch(()=>[]);
+const aFecha = s => { const [d,h]=s.split(" "); const [y,m,dd]=d.split("-").map(Number); const [hh,mm]=h.split(":").map(Number); return new Date(y,m-1,dd,hh,mm); };
+Promise.all([fetch(CSV+"?t="+Date.now()).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}), ytPrevio]).then(([t, yt])=>{
+  const previos = Object.fromEntries(yt.filter(y=>y.yt_video_id).map(y=>[y.carpeta,y]));
+  reels=parseCSV(t).filter(r=>r.fecha_hora).map(r=>{
+    const p = !r.yt_video_id && previos[r.carpeta];
+    return p ? {...r, yt_video_id:p.yt_video_id, _yt:aFecha(p.publicar_en), _f:fecha(r)} : {...r,_f:fecha(r)};
+  }).sort((a,b)=>a._f-b._f);
   const pend=reels.filter(r=>r.estado!=="publicado").length, pub=reels.length-pend;
   estado.textContent=`${pend} programado${pend==1?"":"s"} · ${pub} publicado${pub==1?"":"s"} · actualizado ${new Date().toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"})}`;
   pintar();
