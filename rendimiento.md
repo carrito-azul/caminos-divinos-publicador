@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-17 12:45 · Videos medidos: 7 · Con dato de 24 h: 7 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-17 12:45 · Videos medidos: 8 · Con dato de 24 h: 7 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-08-persiguiendo` con 1.772 reproducciones (medición 7d). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
@@ -20,6 +20,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-12-gracias` | 11-13 20:01 | historia | 50 s | 1.339 | 39 % | 27 % | 0.0 | 2.5 | 1.345 vistas (72h) |
 | `2026-11-12-talento-enterrado` | 11-15 20:02 | imagina | 48 s | 1.622 | 24 % | 37 % | 2.9 | 9.4 | 1.622 vistas (24h) |
 | `2026-11-15-lista-de-manana` | 11-16 12:31 | sentimiento_no_dicho | 53 s | 1.227 | 38 % | 22 % | 5.7 | 14.2 | 1.227 vistas (24h) |
+| `2026-11-15-pepinos-de-egipto` | 11-18 07:01 | dato_biblico_oculto | 57 s | — | — | — | — | — | — vistas (—) |
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
@@ -119,7 +120,8 @@ Sin datos todavía: reflexion, llamado_comentar.
 ## Para el siguiente guion
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
-- **Ya en cola (aún no publicados):** `2026-11-15-me-llego-uno-mas` prueba contraste_pedi_recibi; `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-15-pepinos-de-egipto` prueba dato_biblico_oculto; `2026-11-17-no-es-pereza-completo` prueba lista_numerada. No repitas esas pruebas.
+- **Ya en cola (aún no publicados):** `2026-11-15-me-llego-uno-mas` prueba contraste_pedi_recibi; `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-17-no-es-pereza-completo` prueba lista_numerada. No repitas esas pruebas.
+- **Esperando datos:** 2026-11-15-pepinos-de-egipto (aún sin 24 h). No saques conclusiones de ellos todavía.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
 - El primer segundo decide: el fotograma 0 ya en movimiento y una frase que hable directo a quien mira, escrita grande en pantalla.
