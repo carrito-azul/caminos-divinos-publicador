@@ -186,6 +186,43 @@ def elegir_hora(filas, desde, excluir=None):
 
 
 # ---------- pasos ----------
+def serie_de(carpeta):
+    """(serie, parte) segun la ficha del video, o (None, None) si no es parte de una serie."""
+    ruta = os.path.join(FICHAS, f"{carpeta}.json")
+    if not os.path.exists(ruta):
+        return None, None
+    f = json.load(open(ruta, encoding="utf-8"))
+    try:
+        return (f.get("serie") or None), int(f.get("parte") or 0) or None
+    except (TypeError, ValueError):
+        return None, None
+
+
+def anterior_de_serie(filas, serie, parte):
+    for r in filas:
+        if r.get("franja") != CARRUSEL and r.get("fecha_hora") and serie_de(r["carpeta"]) == (serie, parte - 1):
+            return r
+    return None
+
+
+def hora_de_serie(filas, ficha):
+    """Parte 2 (o siguiente) de una serie: 24 h despues de la parte anterior, a la misma hora."""
+    serie, parte = ficha.get("serie"), ficha.get("parte")
+    try:
+        parte = int(parte)
+    except (TypeError, ValueError):
+        return None
+    if not serie or parte < 2:
+        return None
+    prev = anterior_de_serie(filas, serie, parte)
+    if not prev:
+        return None
+    t = datetime.strptime(prev["fecha_hora"], "%Y-%m-%d %H:%M") + timedelta(days=1)
+    while t < ahora() + timedelta(hours=ANTICIPACION_MIN_HORAS):
+        t += timedelta(days=1)
+    return t, prev.get("franja", ""), f"serie {serie}: parte {parte}, 24 h despues de la parte {parte - 1}"
+
+
 def tomar_cola(filas):
     if not os.path.isdir(COLA):
         return False
@@ -208,7 +245,8 @@ def tomar_cola(filas):
                           "franja": CARRUSEL, "motivo_hora": f"carrusel: {CARRUSEL_DIAS} dias despues de su Reel"})
             log(f"Agendado carrusel {d['carpeta']} -> {t:%Y-%m-%d %H:%M}")
         elif not any(r["carpeta"] == d["carpeta"] for r in filas):
-            t, e, motivo = elegir_hora(filas, ahora() + timedelta(hours=ANTICIPACION_MIN_HORAS))
+            t, e, motivo = hora_de_serie(filas, d.get("ficha") or {}) or \
+                elegir_hora(filas, ahora() + timedelta(hours=ANTICIPACION_MIN_HORAS))
             filas.append({"id": f"CD-{d['carpeta']}", "carpeta": d["carpeta"], "asset": d["asset"], "tema": d["tema"],
                           "gancho": d["ig"].splitlines()[0][:120], "aprobado": "Si", "estado": "pendiente",
                           "detectado": d.get("detectado", ""), "fecha_hora": t.strftime("%Y-%m-%d %H:%M"),
@@ -447,7 +485,8 @@ def medir_hitos(filas):
     if cambio_24h and rendimiento(filas) != franjas_antes:
         # el dato cambio lo que se sabe de los horarios: se vuelve a decidir la hora de lo pendiente (en orden;
         # cada uno respeta a los ya decididos, no a los que vienen despues)
-        pend = sorted([r for r in filas if r["estado"] == "pendiente" and r.get("franja") != CARRUSEL],
+        pend = sorted([r for r in filas if r["estado"] == "pendiente" and r.get("franja") != CARRUSEL
+                       and not (serie_de(r["carpeta"])[1] or 0) >= 2],   # las partes 2+ siguen a su parte anterior
                       key=lambda r: r["fecha_hora"])
         for i, r in enumerate(pend):
             if datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M") - ahora() < timedelta(hours=2):
@@ -459,6 +498,20 @@ def medir_hitos(filas):
                 log(f"Replanificado {r['carpeta']}: {antes} -> {r['fecha_hora']} ({motivo})")
                 if r.get("yt_video_id"):
                     try:  # el Short sigue a su Reel: misma hora en las dos plataformas
+                        yt_reprogramar(r)
+                    except Exception as ex:
+                        log(f"No se pudo mover el Short de {r['carpeta']}: {ex}")
+        for r in sorted(filas, key=lambda x: serie_de(x["carpeta"])[1] or 0):
+            serie, parte = serie_de(r["carpeta"])
+            if r["estado"] != "pendiente" or not serie or (parte or 0) < 2:
+                continue
+            nueva = hora_de_serie(filas, {"serie": serie, "parte": parte})
+            if nueva and nueva[0].strftime("%Y-%m-%d %H:%M") != r["fecha_hora"]:
+                antes = r["fecha_hora"]
+                r.update(fecha_hora=nueva[0].strftime("%Y-%m-%d %H:%M"), franja=nueva[1], motivo_hora=nueva[2])
+                log(f"Replanificado {r['carpeta']}: {antes} -> {r['fecha_hora']} (sigue a su parte anterior)")
+                if r.get("yt_video_id"):
+                    try:
                         yt_reprogramar(r)
                     except Exception as ex:
                         log(f"No se pudo mover el Short de {r['carpeta']}: {ex}")
