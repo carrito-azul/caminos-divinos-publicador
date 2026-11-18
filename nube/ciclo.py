@@ -127,7 +127,8 @@ def salio_a_tiempo(r):
 def rendimiento(filas):
     datos = {}
     for r in filas:
-        if r.get("views_24h") and r.get("franja") and r["franja"] != CARRUSEL and salio_a_tiempo(r):
+        if r.get("views_24h") and r.get("franja") and r["franja"] != CARRUSEL and salio_a_tiempo(r) \
+                and r["carpeta"] not in excluidos():
             datos.setdefault(r["franja"], []).append(float(r["views_24h"]))
     return {k: sum(v) / len(v) for k, v in datos.items()}, {k: len(v) for k, v in datos.items()}
 
@@ -375,6 +376,14 @@ def guardar_ficha(carpeta, ficha):
 
 COLS_MED = ["carpeta", "ig_media_id", "hito", "fecha", "horas", "views", "reach", "likes", "comments", "saved",
             "shares", "total_interactions", "avg_watch_s", "skip_rate", "fuente"]
+
+
+def excluidos():
+    """Videos cuyas metricas no valen para aprender (excluidos.txt, una carpeta por linea; # comenta)."""
+    ruta = os.path.join(RAIZ, "excluidos.txt")
+    if not os.path.exists(ruta):
+        return set()
+    return {l.split("#")[0].strip() for l in open(ruta, encoding="utf-8") if l.split("#")[0].strip()}
 
 
 def leer_med():
