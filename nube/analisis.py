@@ -70,6 +70,14 @@ def _bucket_duracion(s):
     return "menos de 40 s" if s < 40 else "40-50 s" if s < 50 else "50-60 s" if s < 60 else "más de 60 s"
 
 
+def _excluidos():
+    """excluidos.txt: videos con metricas que no valen (p. ej. se publicaron cortados)."""
+    ruta = os.path.join(RAIZ, "excluidos.txt")
+    if not os.path.exists(ruta):
+        return set()
+    return {l.split("#")[0].strip() for l in open(ruta, encoding="utf-8") if l.split("#")[0].strip()}
+
+
 def _videos():
     """Una entrada por video publicado por el sistema (o con ficha), con su mejor dato disponible."""
     cal = {r["carpeta"]: r for r in _leer_csv(CAL)}
@@ -80,7 +88,7 @@ def _videos():
     vids = []
     for carpeta in sorted(set(fichas) | {c for c, r in cal.items() if r.get("estado") == "publicado"}):
         r = cal.get(carpeta, {})
-        if r.get("estado") != "publicado" or r.get("franja") == "carrusel":
+        if r.get("estado") != "publicado" or r.get("franja") == "carrusel" or carpeta in _excluidos():
             continue
         f = fichas.get(carpeta, {})
         hitos = meds.get(carpeta, {})
