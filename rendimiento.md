@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-18 12:45 · Videos medidos: 8 · Con dato de 24 h: 7 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-18 20:15 · Videos medidos: 8 · Con dato de 24 h: 7 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-08-persiguiendo` con 1.772 reproducciones (medición 7d). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
@@ -18,7 +18,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-09-si-entonces` | 11-11 12:31 | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 381 vistas (7d) |
 | `2026-11-09-soltar` | 11-12 18:01 | reto_al_espectador | 49 s | 1.318 | 31 % | 26 % | 4.3 | 8.6 | 1.319 vistas (72h) |
 | `2026-11-12-gracias` | 11-13 20:01 | historia | 50 s | 1.339 | 39 % | 27 % | 0.0 | 2.5 | 1.345 vistas (72h) |
-| `2026-11-12-talento-enterrado` | 11-15 20:02 | imagina | 48 s | 1.622 | 24 % | 37 % | 2.9 | 9.4 | 1.622 vistas (24h) |
+| `2026-11-12-talento-enterrado` | 11-15 20:02 | imagina | 48 s | 1.622 | 24 % | 37 % | 2.9 | 9.4 | 1.639 vistas (72h) |
 | `2026-11-15-lista-de-manana` | 11-16 12:31 | sentimiento_no_dicho | 53 s | 1.227 | 38 % | 22 % | 5.7 | 14.2 | 1.227 vistas (24h) |
 | `2026-11-15-pepinos-de-egipto` | 11-18 07:01 | dato_biblico_oculto | 57 s | — | — | — | — | — | 1.537 vistas (3h) |
 
