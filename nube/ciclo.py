@@ -135,16 +135,16 @@ def rendimiento(filas):
 
 def elegir_hora(filas, desde, excluir=None):
     excluir = excluir if isinstance(excluir, (list, tuple)) else [excluir]
-    ocupados, ultima = {}, None
+    # 19 nov 2026: la separacion se mide contra cada video vecino (antes o despues), no "despues del ultimo";
+    # asi un video fijado o una parte de serie en el futuro no empuja a los demas y no quedan dias vacios.
+    ocupados, horas_ocupadas = {}, []
     for r in filas:
         if (any(r is x for x in excluir) or r["estado"] not in ("pendiente", "publicado", "publicando")
                 or not r.get("fecha_hora") or r.get("franja") == CARRUSEL):
             continue
         ocupados[r["fecha_hora"][:10]] = ocupados.get(r["fecha_hora"][:10], 0) + 1
-        t = datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M")
-        ultima = max(ultima, t) if ultima else t
-    if ultima:
-        desde = max(desde, ultima + timedelta(hours=SEPARACION_MIN_HORAS))
+        horas_ocupadas.append(datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M"))
+    sep = timedelta(hours=SEPARACION_MIN_HORAS)
     prom, cuenta = rendimiento(filas)
     etiquetas = [f"{h:02d}:{m:02d}" for h, m in FRANJAS]
 
@@ -152,7 +152,9 @@ def elegir_hora(filas, desde, excluir=None):
         """Primer hueco libre de la franja e desde 'desde' (respeta separacion y maximo por dia)."""
         t = desde.replace(second=0, microsecond=0, minute=(desde.minute // 15) * 15)
         for _ in range(14 * 96):
-            if f"{t.hour:02d}:{t.minute:02d}" == e and t >= desde and ocupados.get(t.strftime("%Y-%m-%d"), 0) < MAX_POR_DIA:
+            if (f"{t.hour:02d}:{t.minute:02d}" == e and t >= desde
+                    and ocupados.get(t.strftime("%Y-%m-%d"), 0) < MAX_POR_DIA
+                    and all(abs(t - o) >= sep for o in horas_ocupadas)):
                 return t
             t += timedelta(minutes=15)
         return None
@@ -483,39 +485,82 @@ def medir_hitos(filas):
                 w.writeheader()
             w.writerows(nuevas)
     if cambio_24h and rendimiento(filas) != franjas_antes:
-        # el dato cambio lo que se sabe de los horarios: se vuelve a decidir la hora de lo pendiente (en orden;
-        # cada uno respeta a los ya decididos, no a los que vienen despues)
-        pend = sorted([r for r in filas if r["estado"] == "pendiente" and r.get("franja") != CARRUSEL
-                       and not (serie_de(r["carpeta"])[1] or 0) >= 2],   # las partes 2+ siguen a su parte anterior
-                      key=lambda r: r["fecha_hora"])
-        for i, r in enumerate(pend):
-            if datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M") - ahora() < timedelta(hours=2):
-                continue
-            antes = r["fecha_hora"]
-            t, e, motivo = elegir_hora(filas, ahora() + timedelta(hours=2), excluir=pend[i:])
-            r.update(fecha_hora=t.strftime("%Y-%m-%d %H:%M"), franja=e, motivo_hora=motivo)
-            if r["fecha_hora"] != antes:
-                log(f"Replanificado {r['carpeta']}: {antes} -> {r['fecha_hora']} ({motivo})")
-                if r.get("yt_video_id"):
-                    try:  # el Short sigue a su Reel: misma hora en las dos plataformas
-                        yt_reprogramar(r)
-                    except Exception as ex:
-                        log(f"No se pudo mover el Short de {r['carpeta']}: {ex}")
-        for r in sorted(filas, key=lambda x: serie_de(x["carpeta"])[1] or 0):
-            serie, parte = serie_de(r["carpeta"])
-            if r["estado"] != "pendiente" or not serie or (parte or 0) < 2:
-                continue
-            nueva = hora_de_serie(filas, {"serie": serie, "parte": parte})
-            if nueva and nueva[0].strftime("%Y-%m-%d %H:%M") != r["fecha_hora"]:
-                antes = r["fecha_hora"]
-                r.update(fecha_hora=nueva[0].strftime("%Y-%m-%d %H:%M"), franja=nueva[1], motivo_hora=nueva[2])
-                log(f"Replanificado {r['carpeta']}: {antes} -> {r['fecha_hora']} (sigue a su parte anterior)")
-                if r.get("yt_video_id"):
-                    try:
-                        yt_reprogramar(r)
-                    except Exception as ex:
-                        log(f"No se pudo mover el Short de {r['carpeta']}: {ex}")
+        replanificar(filas)
     return cambio_24h
+
+
+def es_fijo(r):
+    """Fecha anunciada al publico (p. ej. en comentarios): la replanificacion no la mueve."""
+    return (r.get("motivo_hora") or "").startswith("fijo")
+
+
+def mover(r, t, e, motivo):
+    antes = r["fecha_hora"]
+    r.update(fecha_hora=t.strftime("%Y-%m-%d %H:%M"), franja=e, motivo_hora=motivo)
+    if r["fecha_hora"] != antes:
+        log(f"Replanificado {r['carpeta']}: {antes} -> {r['fecha_hora']} ({motivo})")
+        if r.get("yt_video_id"):
+            try:  # el Short sigue a su Reel: misma hora en las dos plataformas
+                yt_reprogramar(r)
+            except Exception as ex:
+                log(f"No se pudo mover el Short de {r['carpeta']}: {ex}")
+
+
+def replanificar(filas):
+    """Vuelve a decidir la hora de lo pendiente, en orden. Cada uno respeta a los ya decididos y a los fijos;
+    las partes 2+ de una serie van 24 h despues de su parte anterior, en cuanto esa se decide."""
+    pend = sorted([r for r in filas if r["estado"] == "pendiente" and r.get("franja") != CARRUSEL
+                   and not es_fijo(r)], key=lambda r: r["fecha_hora"])
+    pendientes = list(pend)
+    for r in pend:
+        if r not in pendientes:
+            continue   # ya se coloco como parte de una serie
+        serie, parte = serie_de(r["carpeta"])
+        if serie and (parte or 0) >= 2:
+            continue   # se coloca cuando se decide su parte anterior
+        pendientes.remove(r)
+        if datetime.strptime(r["fecha_hora"], "%Y-%m-%d %H:%M") - ahora() >= timedelta(hours=2):
+            t, e, motivo = elegir_hora(filas, ahora() + timedelta(hours=2), excluir=[r] + pendientes)
+            mover(r, t, e, motivo)
+        if serie:
+            sig = parte or 1
+            while True:
+                nxt = next((x for x in pendientes if serie_de(x["carpeta"]) == (serie, sig + 1)), None)
+                if not nxt:
+                    break
+                pendientes.remove(nxt)
+                nueva = hora_de_serie(filas, {"serie": serie, "parte": sig + 1})
+                if nueva:
+                    mover(nxt, *nueva)
+                sig += 1
+    for r in pendientes:   # partes de serie cuya parte anterior ya salio
+        serie, parte = serie_de(r["carpeta"])
+        nueva = hora_de_serie(filas, {"serie": serie, "parte": parte}) if serie else None
+        if nueva:
+            mover(r, *nueva)
+
+
+ARREGLO_19NOV = os.path.join(RAIZ, "arreglos", "2026-11-19-calendario.done")
+
+
+def arreglo_19nov(filas):
+    """Una sola vez: el 19 nov una replanificacion con un error empujo todo 4 dias. No es pereza (completo) vuelve
+    a la fecha anunciada en comentarios (vie 20, 22:30) y lo demas se replanifica con la regla corregida."""
+    if os.path.exists(ARREGLO_19NOV):
+        return False
+    for r in filas:
+        if r["carpeta"] == "2026-11-17-no-es-pereza-completo" and r["estado"] == "pendiente":
+            r.update(fecha_hora="2026-11-20 22:30", franja="22:30", motivo_hora="fijo: anunciado en comentarios")
+            log("Arreglo: No es pereza (completo) vuelve al vie 20 22:30 (fecha anunciada)")
+            if r.get("yt_video_id"):
+                try:
+                    yt_reprogramar(r)
+                except Exception as ex:
+                    log(f"No se pudo mover el Short de {r['carpeta']}: {ex}")
+    replanificar(filas)
+    os.makedirs(os.path.dirname(ARREGLO_19NOV), exist_ok=True)
+    open(ARREGLO_19NOV, "w").write(ahora().strftime("%Y-%m-%d %H:%M") + "\n")
+    return True
 
 
 def metricas_diarias():
@@ -903,7 +948,7 @@ def main():
     if os.path.exists(ALERTA):
         os.remove(ALERTA)
     filas = leer_cal()
-    for paso in (tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos, comentar_shorts, poner_miniaturas):
+    for paso in (arreglo_19nov, tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos, comentar_shorts, poner_miniaturas):
         try:
             if paso(filas):
                 guardar_cal(filas)
