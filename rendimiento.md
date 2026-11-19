@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-19 12:45 · Videos medidos: 8 · Con dato de 24 h: 8 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-19 18:01 · Videos medidos: 9 · Con dato de 24 h: 8 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-08-persiguiendo` con 1.772 reproducciones (medición 7d). Gancho: «¿Por qué seguimos persiguiendo cosas que ya ni queremos?».
@@ -16,11 +16,12 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-08-persiguiendo` | 11-07 22:30 | pregunta_directa | 61 s | 1.764 ≈ | 34 % | 27 % | 4.7 | 14.7 | 1.772 vistas (7d) |
 | `2026-11-09-ceguera-eleccion` | 11-10 09:01 ⚠ | imagina | 57 s | 1.368 | 23 % | 72 % | 0.0 | 2.1 | 1.382 vistas (7d) |
 | `2026-11-09-si-entonces` | 11-11 12:31 | dato_impactante | 46 s | 368 | 41 % | 35 % | 13.4 | 36.8 | 381 vistas (7d) |
-| `2026-11-09-soltar` | 11-12 18:01 | reto_al_espectador | 49 s | 1.318 | 31 % | 26 % | 4.3 | 8.6 | 1.319 vistas (72h) |
+| `2026-11-09-soltar` | 11-12 18:01 | reto_al_espectador | 49 s | 1.318 | 31 % | 26 % | 4.3 | 8.6 | 1.321 vistas (7d) |
 | `2026-11-12-gracias` | 11-13 20:01 | historia | 50 s | 1.339 | 39 % | 27 % | 0.0 | 2.5 | 1.345 vistas (72h) |
 | `2026-11-12-talento-enterrado` | 11-15 20:02 | imagina | 48 s | 1.622 | 24 % | 37 % | 2.9 | 9.4 | 1.639 vistas (72h) |
 | `2026-11-15-lista-de-manana` | 11-16 12:31 | sentimiento_no_dicho | 53 s | 1.227 | 38 % | 22 % | 5.7 | 14.2 | 1.238 vistas (72h) |
 | `2026-11-15-pepinos-de-egipto` | 11-18 07:01 | dato_biblico_oculto | 57 s | 1.665 | 27 % | 39 % | 7.8 | 4.3 | 1.665 vistas (24h) |
+| `2026-11-15-me-llego-uno-mas` | 11-19 18:01 | contraste_pedi_recibi | 49 s | — | — | — | — | — | — vistas (—) |
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
@@ -122,7 +123,8 @@ Sin datos todavía: reflexion, llamado_comentar.
 ## Para el siguiente guion
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
-- **Ya en cola (aún no publicados):** `2026-11-15-me-llego-uno-mas` prueba contraste_pedi_recibi; `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-17-no-es-pereza-completo` prueba lista_numerada; `2026-11-19-manana-hablamos-parte-1` prueba cold_open_segunda_persona; `2026-11-19-manana-hablamos-parte-2` prueba cold_open_segunda_persona; `2026-11-19-sin-palabras` prueba sentimiento_no_dicho. No repitas esas pruebas.
+- **Ya en cola (aún no publicados):** `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-17-no-es-pereza-completo` prueba lista_numerada; `2026-11-19-manana-hablamos-parte-1` prueba cold_open_segunda_persona; `2026-11-19-manana-hablamos-parte-2` prueba cold_open_segunda_persona; `2026-11-19-sin-palabras` prueba sentimiento_no_dicho. No repitas esas pruebas.
+- **Esperando datos:** 2026-11-15-me-llego-uno-mas (aún sin 24 h). No saques conclusiones de ellos todavía.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
 - El primer segundo decide: el fotograma 0 ya en movimiento y una frase que hable directo a quien mira, escrita grande en pantalla.
