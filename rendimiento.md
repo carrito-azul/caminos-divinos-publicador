@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-21 07:15 · Videos medidos: 10 · Con dato de 24 h: 9 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-21 07:15 · Videos medidos: 11 · Con dato de 24 h: 9 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-15-me-llego-uno-mas` con 1.787 reproducciones (medición 24h). Gancho: «Le pedí a Dios que me quitara los problemas… y me llegó uno más.».
@@ -23,6 +23,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-15-pepinos-de-egipto` | 11-18 07:01 | dato_biblico_oculto | 57 s | 1.665 | 27 % | 39 % | 7.8 | 4.3 | 1.681 vistas (72h) |
 | `2026-11-15-me-llego-uno-mas` | 11-19 18:01 | contraste_pedi_recibi | 49 s | 1.787 | 32 % | 42 % | 19.9 | 24.2 | 1.787 vistas (24h) |
 | `2026-11-17-no-es-pereza-completo` | 11-20 22:31 | lista_numerada | 56 s | — | — | — | — | — | 1.386 vistas (3h) |
+| `2026-11-19-manana-hablamos-parte-1` | 11-21 12:31 | cold_open_segunda_persona | 59 s | — | — | — | — | — | — vistas (—) |
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
@@ -126,8 +127,8 @@ Sin datos todavía: reflexion, llamado_comentar.
 ## Para el siguiente guion
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
-- **Ya en cola (aún no publicados):** `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-19-manana-hablamos-parte-1` prueba cold_open_segunda_persona; `2026-11-19-manana-hablamos-parte-2` prueba cold_open_segunda_persona; `2026-11-19-sin-palabras` prueba sentimiento_no_dicho. No repitas esas pruebas.
-- **Esperando datos:** 2026-11-17-no-es-pereza-completo (aún sin 24 h). No saques conclusiones de ellos todavía.
+- **Ya en cola (aún no publicados):** `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-19-manana-hablamos-parte-2` prueba cold_open_segunda_persona; `2026-11-19-sin-palabras` prueba sentimiento_no_dicho. No repitas esas pruebas.
+- **Esperando datos:** 2026-11-17-no-es-pereza-completo, 2026-11-19-manana-hablamos-parte-1 (aún sin 24 h). No saques conclusiones de ellos todavía.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
 - El primer segundo decide: el fotograma 0 ya en movimiento y una frase que hable directo a quien mira, escrita grande en pantalla.
