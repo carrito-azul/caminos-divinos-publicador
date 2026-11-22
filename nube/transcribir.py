@@ -39,6 +39,7 @@ def urls_de(u, buscados):
 
 
 def main():
+    from faster_whisper import WhisperModel   # si falla, que falle antes de consultar la API
     filas = list(csv.DictReader(open(os.path.join(CARP, "reels.csv"), encoding="utf-8")))
     for f in filas:
         f["x"] = float(f["veces_su_mediana"] or 0)
@@ -76,7 +77,6 @@ def main():
             print(f"{u}: {e}", flush=True)
 
     # 2) transcripcion
-    from faster_whisper import WhisperModel
     modelo = WhisperModel("small", device="cpu", compute_type="int8")
     nuevo = not os.path.exists(SALIDA)
     out = open(SALIDA, "a", encoding="utf-8", newline="")
