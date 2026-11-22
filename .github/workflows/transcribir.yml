@@ -1,0 +1,47 @@
+name: Transcribir virales
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: transcribir      # grupo propio: no frena las publicaciones
+  cancel-in-progress: false
+
+jobs:
+  transcribir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar transcriptor
+        run: |
+          pip install faster-whisper==1.1.1
+          which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Transcribir
+        env:
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          GRAPH_VERSION: ${{ secrets.GRAPH_VERSION }}
+        run: timeout 300m python nube/transcribir.py || true
+      - name: Guardar resultados
+        run: |
+          git config user.name "publicador-caminos-divinos"
+          git config user.email "publicador@users.noreply.github.com"
+          cp investigacion/transcripciones.csv /tmp/transcripciones.csv || exit 0
+          for i in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            cp /tmp/transcripciones.csv investigacion/transcripciones.csv
+            git add investigacion/transcripciones.csv
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m "Transcripciones de reels referentes"
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 20
+          done
+          exit 1
