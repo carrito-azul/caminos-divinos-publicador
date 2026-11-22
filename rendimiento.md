@@ -6,7 +6,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-15-me-llego-uno-mas` con 1.787 reproducciones (medición 24h). Gancho: «Le pedí a Dios que me quitara los problemas… y me llegó uno más.».
-- **Línea base (Reels de 2026 antes del sistema, 36):** mediana 154 reproducciones, salto 70 %, 8.8 s de reproducción media; el mejor llegó a 2.201.
+- **Línea base (Reels de 2026 antes del sistema, 37):** mediana 157 reproducciones, salto 69 %, 8.8 s de reproducción media; el mejor llegó a 2.204.
 - **Metas por video** (referencia general hasta tener datos propios): salto < 40 %, retención > 50 % del video, ≥ 5 compartidos y ≥ 10 guardados por cada 1.000 cuentas alcanzadas. Los compartidos son lo que más empuja a no seguidores.
 
 ## Cada video
