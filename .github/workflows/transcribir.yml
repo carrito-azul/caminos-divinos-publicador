@@ -22,7 +22,7 @@ jobs:
       - name: Instalar transcriptor
         run: |
           pip install --upgrade pip
-          pip install "faster-whisper>=1.2" av
+          pip install "faster-whisper>=1.2" numpy
           python -c "from faster_whisper import WhisperModel; print('transcriptor OK')"
           which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
       - name: Transcribir
