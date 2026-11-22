@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-22 10:15 · Videos medidos: 12 · Con dato de 24 h: 10 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-22 12:45 · Videos medidos: 12 · Con dato de 24 h: 11 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-15-me-llego-uno-mas` con 1.787 reproducciones (medición 24h). Gancho: «Le pedí a Dios que me quitara los problemas… y me llegó uno más.».
@@ -23,7 +23,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-15-pepinos-de-egipto` | 11-18 07:01 | dato_biblico_oculto | 57 s | 1.665 | 27 % | 39 % | 7.8 | 4.3 | 1.681 vistas (72h) |
 | `2026-11-15-me-llego-uno-mas` | 11-19 18:01 | contraste_pedi_recibi | 49 s | 1.787 | 32 % | 42 % | 19.9 | 24.2 | 1.787 vistas (24h) |
 | `2026-11-17-no-es-pereza-completo` | 11-20 22:31 | lista_numerada | 56 s | 1.454 | 39 % | 31 % | 10.9 | 14.0 | 1.454 vistas (24h) |
-| `2026-11-19-manana-hablamos-parte-1` | 11-21 12:31 | cold_open_segunda_persona | 59 s | — | — | — | — | — | 685 vistas (3h) |
+| `2026-11-19-manana-hablamos-parte-1` | 11-21 12:31 | cold_open_segunda_persona | 59 s | 1.188 | 37 % | 16 % | 1.9 | 5.7 | 1.188 vistas (24h) |
 | `2026-11-19-sin-palabras` | 11-22 07:01 | sentimiento_no_dicho | 21 s | — | — | — | — | — | 1.485 vistas (3h) |
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
@@ -46,6 +46,7 @@ Hipótesis (14 nov 2026, con 5 videos): para llegar lejos un video tiene que pas
 | `2026-11-15-pepinos-de-egipto` | 🟢 27 % | 🟡 39 % | 🟢 7.8 | 1.665 | puerta 2 → la montaña rusa (`guia/guion.md`): curvas cada ~5 s, primera respuesta a la mitad |
 | `2026-11-15-me-llego-uno-mas` | 🟡 32 % | 🟡 42 % | 🟢 19.9 | 1.787 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
 | `2026-11-17-no-es-pereza-completo` | 🟡 39 % | 🟡 31 % | 🟢 10.9 | 1.454 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
+| `2026-11-19-manana-hablamos-parte-1` | 🟡 37 % | 🔴 16 % | 🔴 1.9 | 1.188 | puerta 1 → el gancho (tipos en prueba; el mejor hasta ahora: el de menor salto) |
 
 ## Carruseles
 
@@ -68,6 +69,7 @@ Solo con videos que ya tienen dato de 24 h. Con 1-2 videos es una **pista**; con
 | reto_al_espectador | 1 | 1.318 | 31 % | 26 % | 4.3 | pista (1 video) |
 | contraste_pedi_recibi | 1 | 1.787 | 32 % | 42 % | 19.9 | pista (1 video) |
 | pregunta_directa | 1 | 1.764 | 34 % | 27 % | 4.7 | pista (1 video) |
+| cold_open_segunda_persona | 1 | 1.188 | 37 % | 16 % | 1.9 | pista (1 video) |
 | sentimiento_no_dicho | 1 | 1.227 | 38 % | 22 % | 5.7 | pista (1 video) |
 | lista_numerada | 1 | 1.454 | 39 % | 31 % | 10.9 | pista (1 video) |
 | historia | 1 | 1.339 | 39 % | 27 % | 0.0 | pista (1 video) |
@@ -81,7 +83,7 @@ Sin datos todavía: afirmacion_contraria, promesa.
 |---|---|---|---|---|---|---|
 | curiosidad | 1 | 1.368 | 23 % | 72 % | 0.0 | pista (1 video) |
 | alivio | 2 | 1.552 | 31 % | 34 % | 12.1 | pista |
-| identificacion | 7 | 1.348 | 35 % | 31 % | 6.5 | tendencia |
+| identificacion | 8 | 1.328 | 35 % | 29 % | 5.9 | tendencia |
 
 **Categoría**
 
@@ -89,7 +91,7 @@ Sin datos todavía: afirmacion_contraria, promesa.
 |---|---|---|---|---|---|---|
 | proposito | 1 | 1.622 | 24 % | 37 % | 2.9 | pista (1 video) |
 | psicologia_cotidiana | 2 | 1.566 | 29 % | 50 % | 2.4 | pista |
-| emociones | 4 | 1.499 | 32 % | 32 % | 9.4 | tendencia |
+| emociones | 5 | 1.437 | 33 % | 29 % | 7.9 | tendencia |
 | relaciones | 1 | 1.339 | 39 % | 27 % | 0.0 | pista (1 video) |
 | habitos | 2 | 911 | 40 % | 33 % | 12.2 | pista |
 
@@ -99,7 +101,7 @@ Sin datos todavía: afirmacion_contraria, promesa.
 |---|---|---|---|---|---|---|
 | llamado_enviar | 3 | 1.691 | 28 % | 39 % | 10.2 | tendencia |
 | pregunta | 3 | 1.167 | 33 % | 45 % | 6.0 | tendencia |
-| llamado_seguir | 2 | 1.328 | 35 % | 26 % | 2.1 | pista |
+| llamado_seguir | 3 | 1.282 | 36 % | 23 % | 2.1 | tendencia |
 | llamado_guardar | 2 | 1.340 | 39 % | 26 % | 8.3 | pista |
 
 Sin datos todavía: reflexion, llamado_comentar.
@@ -109,14 +111,14 @@ Sin datos todavía: reflexion, llamado_comentar.
 | Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
 |---|---|---|---|---|---|---|
 | con relato bíblico | 5 | 1.551 | 32 % | 34 % | 9.4 | tendencia |
-| sin relato | 5 | 1.231 | 34 % | 37 % | 4.5 | tendencia |
+| sin relato | 6 | 1.224 | 34 % | 34 % | 4.0 | tendencia |
 
 **Estilo visual**
 
 | Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
 |---|---|---|---|---|---|---|
 | silueta en oscuridad + cartas | 1 | 1.368 | 23 % | 72 % | 0.0 | pista (1 video) |
-| personajes 2D en escenarios cotidianos | 8 | 1.348 | 34 % | 32 % | 8.1 | tendencia |
+| personajes 2D en escenarios cotidianos | 9 | 1.330 | 34 % | 31 % | 7.4 | tendencia |
 | silueta + metáforas luminosas | 1 | 1.764 | 34 % | 27 % | 4.7 | pista (1 video) |
 
 **Duración**
@@ -124,14 +126,20 @@ Sin datos todavía: reflexion, llamado_comentar.
 | Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
 |---|---|---|---|---|---|---|
 | 40-50 s | 4 | 1.274 | 32 % | 35 % | 10.1 | tendencia |
-| 50-60 s | 5 | 1.411 | 33 % | 38 % | 4.9 | tendencia |
+| 50-60 s | 6 | 1.374 | 34 % | 34 % | 4.4 | tendencia |
 | más de 60 s | 1 | 1.764 | 34 % | 27 % | 4.7 | pista (1 video) |
+
+**Tema universal (pruebas que pasa, de 4)**
+
+| Opción | Videos | Vistas 24 h (prom.) | Salto (prom.) | Retención | Compart./1.000 | Confianza |
+|---|---|---|---|---|---|---|
+| 4 | 1 | 1.188 | 37 % | 16 % | 1.9 | pista (1 video) |
 
 ## Para el siguiente guion
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
 - **Ya en cola (aún no publicados):** `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-19-manana-hablamos-parte-2` prueba cold_open_segunda_persona. No repitas esas pruebas.
-- **Esperando datos:** 2026-11-19-manana-hablamos-parte-1, 2026-11-19-sin-palabras (aún sin 24 h). No saques conclusiones de ellos todavía.
+- **Esperando datos:** 2026-11-19-sin-palabras (aún sin 24 h). No saques conclusiones de ellos todavía.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
 - El primer segundo decide: el fotograma 0 ya en movimiento y una frase que hable directo a quien mira, escrita grande en pantalla.
