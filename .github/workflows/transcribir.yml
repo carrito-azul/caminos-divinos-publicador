@@ -21,15 +21,18 @@ jobs:
           python-version: "3.12"
       - name: Instalar transcriptor
         run: |
-          pip install faster-whisper==1.1.1
+          pip install --upgrade pip
+          pip install "faster-whisper>=1.2" av
+          python -c "from faster_whisper import WhisperModel; print('transcriptor OK')"
           which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
       - name: Transcribir
         env:
           FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           GRAPH_VERSION: ${{ secrets.GRAPH_VERSION }}
-        run: timeout 300m python nube/transcribir.py || true
+        run: timeout 300m python nube/transcribir.py
       - name: Guardar resultados
+        if: always()
         run: |
           git config user.name "publicador-caminos-divinos"
           git config user.email "publicador@users.noreply.github.com"
