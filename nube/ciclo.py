@@ -511,6 +511,12 @@ def replanificar(filas):
     las partes 2+ de una serie van 24 h despues de su parte anterior, en cuanto esa se decide."""
     pend = sorted([r for r in filas if r["estado"] == "pendiente" and r.get("franja") != CARRUSEL
                    and not es_fijo(r)], key=lambda r: r["fecha_hora"])
+    # 22 nov 2026: una parte 2+ cuya parte anterior ya salio (o no se replanifica) queda donde esta y ocupa su dia;
+    # antes quedaba "por decidir", no contaba como ocupada y otro video tomo su mismo dia.
+    def anterior_pendiente(r):
+        serie, parte = serie_de(r["carpeta"])
+        return any(x is not r and serie_de(x["carpeta"]) == (serie, (parte or 0) - 1) for x in pend)
+    pend = [r for r in pend if not ((serie_de(r["carpeta"])[1] or 0) >= 2 and not anterior_pendiente(r))]
     pendientes = list(pend)
     for r in pend:
         if r not in pendientes:
@@ -533,11 +539,7 @@ def replanificar(filas):
                 if nueva:
                     mover(nxt, *nueva)
                 sig += 1
-    for r in pendientes:   # partes de serie cuya parte anterior ya salio
-        serie, parte = serie_de(r["carpeta"])
-        nueva = hora_de_serie(filas, {"serie": serie, "parte": parte}) if serie else None
-        if nueva:
-            mover(r, *nueva)
+
 
 
 ARREGLO_19NOV = os.path.join(RAIZ, "arreglos", "2026-11-19-calendario.done")
