@@ -1,7 +1,7 @@
 """Transcribe lo que se DICE en los reels virales de las cuentas referentes (y una muestra de reels normales para
 comparar). Usa Business Discovery (API oficial) para obtener el archivo de cada reel publico, lo transcribe con
 faster-whisper y escribe investigacion/transcripciones.csv. Solo para analizar: no se publica ni se guarda ningun video."""
-import csv, json, os, random, statistics, subprocess, sys, tempfile, time, urllib.error, urllib.parse, urllib.request
+import csv, json, numpy, os, random, statistics, subprocess, sys, tempfile, time, urllib.error, urllib.parse, urllib.request
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CARP = os.path.join(RAIZ, "investigacion")
@@ -53,9 +53,11 @@ def main():
     objetivo = [("viral", f) for f in sorted(virales, key=lambda f: -f["x"])] + [("normal", f) for f in normales]
     print(f"A transcribir: {len(virales)} virales y {len(normales)} normales", flush=True)
 
-    hechos = set()
-    if os.path.exists(SALIDA):
-        hechos = {r["enlace"] for r in csv.DictReader(open(SALIDA, encoding="utf-8")) if r["transcripcion"] or r["nota"]}
+    previas = []
+    if os.path.exists(SALIDA):   # se conservan las ya transcritas y las que la API no entrega; los errores se reintentan
+        previas = [r for r in csv.DictReader(open(SALIDA, encoding="utf-8"))
+                   if r["transcripcion"] or (r["nota"] and not r["nota"].startswith("error"))]
+    hechos = {r["enlace"] for r in previas}
     pendientes = [(g, f) for g, f in objetivo if f["enlace"] not in hechos]
 
     # 1) enlaces de los archivos, cuenta por cuenta
@@ -78,11 +80,11 @@ def main():
 
     # 2) transcripcion
     modelo = WhisperModel("small", device="cpu", compute_type="int8")
-    nuevo = not os.path.exists(SALIDA)
-    out = open(SALIDA, "a", encoding="utf-8", newline="")
+    out = open(SALIDA, "w", encoding="utf-8", newline="")
     w = csv.DictWriter(out, fieldnames=COLS)
-    if nuevo:
-        w.writeheader()
+    w.writeheader()
+    w.writerows(previas)
+    out.flush()
     tmp = tempfile.mkdtemp()
     for n, (g, f) in enumerate(pendientes, 1):
         fila = {"grupo": g, "cuenta": f["cuenta"], "seguidores": f["seguidores"], "fecha": f["fecha"],
@@ -97,8 +99,12 @@ def main():
             video, audio = os.path.join(tmp, "v.mp4"), os.path.join(tmp, "a.wav")
             with urllib.request.urlopen(url, timeout=120) as r, open(video, "wb") as fh:
                 fh.write(r.read())
-            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-ac", "1", "-ar", "16000", audio], check=True)
-            segs, info = modelo.transcribe(audio, beam_size=1, vad_filter=True)
+            crudo = subprocess.run(["ffmpeg", "-v", "error", "-i", video, "-vn", "-f", "s16le", "-ac", "1", "-ar", "16000",
+                                    "-"], check=True, capture_output=True).stdout
+            if len(crudo) < 16000:   # menos de medio segundo de audio
+                raise ValueError("el video no tiene audio")
+            muestras = numpy.frombuffer(crudo, numpy.int16).astype(numpy.float32) / 32768.0
+            segs, info = modelo.transcribe(muestras, beam_size=1, vad_filter=True)
             texto = " ".join(s.text.strip() for s in segs).strip()
             fila.update(duracion_s=round(info.duration, 1), idioma=info.language, transcripcion=texto,
                         nota="" if texto else "sin voz (solo musica o texto en pantalla)")
