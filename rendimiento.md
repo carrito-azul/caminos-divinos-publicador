@@ -144,7 +144,7 @@ Sin datos todavía: reflexion, llamado_comentar.
 ## Para el siguiente guion
 - **Punto de partida:** el gancho que menos gente salta hasta ahora es el de `2026-11-09-ceguera-eleccion` (imagina: «Imagina elegir algo, que alguien lo cambie sin que lo notes… y que después expliques por qué lo elegiste.», salto 23 %). Mantén su forma salvo en la variable que se pruebe.
 - **Experimento sugerido:** un tipo de gancho aún sin probar (afirmacion_contraria), manteniendo lo demás como el mejor video. Una sola variable por video: si cambian varias, no se sabe qué funcionó.
-- **Ya en cola (aún no publicados):** `2026-11-15-no-es-pereza` prueba lista_numerada. No repitas esas pruebas.
+- **Ya en cola (aún no publicados):** `2026-11-15-no-es-pereza` prueba lista_numerada; `2026-11-24-bambu` prueba historia_en_marcha; `2026-11-24-cuida-a-los-que-amo` prueba oracion_primera_persona; `2026-11-24-estoy-bien` prueba oracion_primera_persona; `2026-11-24-no-me-puedo-perdonar` prueba dialogo_queja; `2026-11-24-personas-que-se-fueron` prueba contraste_pedi_recibi; `2026-11-24-todos-avanzan` prueba dialogo_queja; `2026-11-24-vas-tarde` prueba no_es_casualidad. No repitas esas pruebas.
 - **Esperando datos:** 2026-11-19-manana-hablamos-parte-2 (aún sin 24 h). No saques conclusiones de ellos todavía.
 
 ## Principios generales (no salen de tus datos; los datos mandan cuando los contradigan)
