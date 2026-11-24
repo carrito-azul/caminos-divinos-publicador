@@ -179,6 +179,20 @@ def elegir_hora(filas, desde, excluir=None):
         e = min(cerca, key=lambda x: (plan.get(x, 0), cerca[x]))
         return cerca[e], e, (f"exploracion: {e} tiene {cuenta.get(e, 0)} de {MIN_DATOS_FRANJA} videos para comparar")
     mejor = max(confiables, key=confiables.get)
+    # 24 nov 2026: una franja con pocos datos cuyo promedio (o falta de datos) no es peor que la mejor confiable se
+    # sigue probando hasta tener MIN_DATOS_FRANJA; antes la unica franja confiable (12:30, la mas floja) se llevaba todo.
+    prometedoras = [x for x in cerca if x != mejor and cuenta.get(x, 0) < MIN_DATOS_FRANJA
+                    and plan.get(x, 0) < MIN_DATOS_FRANJA and prom.get(x, confiables[mejor]) >= confiables[mejor]]
+    if prometedoras:
+        e = min(prometedoras, key=lambda x: (plan.get(x, 0), -prom.get(x, 0), cerca[x]))
+        return cerca[e], e, (f"exploracion: {e} rinde igual o mejor que {mejor} con pocos datos "
+                             f"({cuenta.get(e, 0)} de {MIN_DATOS_FRANJA})")
+    # Si ninguna esta en exploracion, se usa la de mejor promedio entre las del dia (aunque tenga pocos datos), no
+    # solo la confiable: la confiable puede ser la mas floja.
+    con_datos = [x for x in cerca if x in prom]
+    if con_datos and prom.get(max(con_datos, key=lambda x: prom[x]), 0) > confiables[mejor]:
+        e = max(con_datos, key=lambda x: (prom[x], -plan.get(x, 0)))
+        return cerca[e], e, f"mejor promedio del dia: {e} ({prom[e]:.0f} vistas a 24 h, {cuenta.get(e, 0)} Reels)"
     if mejor in cerca and not (random.random() < EXPLORACION and len(cerca) > 1):
         return cerca[mejor], mejor, (f"mejor franja: {mejor} ({confiables[mejor]:.0f} vistas a 24 h, "
                                      f"{cuenta[mejor]} Reels)")
@@ -562,6 +576,20 @@ def arreglo_19nov(filas):
     replanificar(filas)
     os.makedirs(os.path.dirname(ARREGLO_19NOV), exist_ok=True)
     open(ARREGLO_19NOV, "w").write(ahora().strftime("%Y-%m-%d %H:%M") + "\n")
+    return True
+
+
+ARREGLO_24NOV = os.path.join(RAIZ, "arreglos", "2026-11-24-franjas.done")
+
+
+def arreglo_24nov(filas):
+    """Una sola vez: la semana se programo toda a las 12:30 (la franja mas floja) por un error de la regla."""
+    if os.path.exists(ARREGLO_24NOV):
+        return False
+    replanificar(filas)
+    os.makedirs(os.path.dirname(ARREGLO_24NOV), exist_ok=True)
+    open(ARREGLO_24NOV, "w").write(ahora().strftime("%Y-%m-%d %H:%M") + "\n")
+    log("Arreglo: semana replanificada con la regla de franjas corregida")
     return True
 
 
@@ -950,7 +978,7 @@ def main():
     if os.path.exists(ALERTA):
         os.remove(ALERTA)
     filas = leer_cal()
-    for paso in (arreglo_19nov, tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos, comentar_shorts, poner_miniaturas):
+    for paso in (arreglo_19nov, arreglo_24nov, tomar_cola, subir_shorts_pendientes, publicar_vencidos, medir_hitos, comentar_shorts, poner_miniaturas):
         try:
             if paso(filas):
                 guardar_cal(filas)
