@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-24 21:00 · Videos medidos: 14 · Con dato de 24 h: 13 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-25 07:15 · Videos medidos: 14 · Con dato de 24 h: 13 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-15-me-llego-uno-mas` con 1.915 reproducciones (medición 72h). Gancho: «Le pedí a Dios que me quitara los problemas… y me llegó uno más.».
@@ -20,11 +20,11 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-12-gracias` | 11-13 20:01 | historia | 50 s | 1.339 | 39 % | 27 % | 0.0 | 2.5 | 1.346 vistas (7d) |
 | `2026-11-12-talento-enterrado` | 11-15 20:02 | imagina | 48 s | 1.622 | 24 % | 37 % | 2.9 | 9.4 | 1.648 vistas (7d) |
 | `2026-11-15-lista-de-manana` | 11-16 12:31 | sentimiento_no_dicho | 53 s | 1.227 | 38 % | 22 % | 5.7 | 14.2 | 1.238 vistas (7d) |
-| `2026-11-15-pepinos-de-egipto` | 11-18 07:01 | dato_biblico_oculto | 57 s | 1.665 | 27 % | 39 % | 7.8 | 4.3 | 1.681 vistas (72h) |
+| `2026-11-15-pepinos-de-egipto` | 11-18 07:01 | dato_biblico_oculto | 57 s | 1.665 | 27 % | 39 % | 7.8 | 4.3 | 1.689 vistas (7d) |
 | `2026-11-15-me-llego-uno-mas` | 11-19 18:01 | contraste_pedi_recibi | 49 s | 1.787 | 32 % | 42 % | 19.9 | 24.2 | 1.915 vistas (72h) |
 | `2026-11-17-no-es-pereza-completo` | 11-20 22:31 | lista_numerada | 56 s | 1.454 | 39 % | 31 % | 10.9 | 14.0 | 1.461 vistas (72h) |
 | `2026-11-19-manana-hablamos-parte-1` | 11-21 12:31 | cold_open_segunda_persona | 59 s | 1.188 | 37 % | 16 % | 1.9 | 5.7 | 1.195 vistas (72h) |
-| `2026-11-19-sin-palabras` | 11-22 07:01 | sentimiento_no_dicho | 21 s | 1.725 | 38 % | 50 % | 5.6 | 19.6 | 1.725 vistas (24h) |
+| `2026-11-19-sin-palabras` | 11-22 07:01 | sentimiento_no_dicho | 21 s | 1.725 | 38 % | 50 % | 5.6 | 19.6 | 1.762 vistas (72h) |
 | `2026-11-19-manana-hablamos-parte-2` | 11-23 12:31 | cold_open_segunda_persona | 58 s | 1.352 | 32 % | 39 % | 1.8 | 14.2 | 1.352 vistas (24h) |
 | `2026-11-24-bambu` | 11-24 18:00 | historia_en_marcha | 48 s | — | — | — | — | — | 1.397 vistas (3h) |
 
