@@ -2,7 +2,7 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-25 21:00 · Videos medidos: 15 · Con dato de 24 h: 14 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-25 23:00 · Videos medidos: 15 · Con dato de 24 h: 14 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-15-me-llego-uno-mas` con 1.915 reproducciones (medición 72h). Gancho: «Le pedí a Dios que me quitara los problemas… y me llegó uno más.».
@@ -27,7 +27,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-19-sin-palabras` | 11-22 07:01 | sentimiento_no_dicho | 21 s | 1.725 | 38 % | 50 % | 5.6 | 19.6 | 1.762 vistas (72h) |
 | `2026-11-19-manana-hablamos-parte-2` | 11-23 12:31 | cold_open_segunda_persona | 58 s | 1.352 | 32 % | 39 % | 1.8 | 14.2 | 1.352 vistas (24h) |
 | `2026-11-24-bambu` | 11-24 18:00 | historia_en_marcha | 48 s | 1.430 | 30 % | 43 % | 1.7 | 4.2 | 1.430 vistas (24h) |
-| `2026-11-24-cuida-a-los-que-amo` | 11-25 20:00 | oracion_primera_persona | 37 s | — | — | — | — | — | 391 vistas (1h) |
+| `2026-11-24-cuida-a-los-que-amo` | 11-25 20:00 | oracion_primera_persona | 37 s | — | — | — | — | — | 1.208 vistas (3h) |
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
