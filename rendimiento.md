@@ -2,10 +2,10 @@
 
 Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo edites a mano.** CODE ART lo lee antes de escribir cada guion (`AGENTS.md`). Lo que dice aquí son datos; lo que el creador pide sigue mandando.
 
-Última medición: 2026-11-27 19:15 · Videos medidos: 17 · Con dato de 24 h: 15 · Meta: 50.000 reproducciones en un video
+Última medición: 2026-11-27 21:10 · Videos medidos: 17 · Con dato de 24 h: 15 · Meta: 50.000 reproducciones en un video
 
 ## Dónde estamos
-- **Récord del sistema:** `2026-11-15-me-llego-uno-mas` con 2.170 reproducciones (medición 7d). Gancho: «Le pedí a Dios que me quitara los problemas… y me llegó uno más.».
+- **Récord del sistema:** `2026-11-24-no-me-puedo-perdonar` con 2.391 reproducciones (medición 3h). Gancho: «Jesús, Tú ya me perdonaste… pero yo no puedo.».
 - **Línea base (Reels de 2026 antes del sistema, 42):** mediana 187 reproducciones, salto 65 %, 9.7 s de reproducción media; el mejor llegó a 2.211.
 - **Metas por video** (referencia general hasta tener datos propios): salto < 40 %, retención > 50 % del video, ≥ 5 compartidos y ≥ 10 guardados por cada 1.000 cuentas alcanzadas. Los compartidos son lo que más empuja a no seguidores.
 
@@ -29,7 +29,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 | `2026-11-24-bambu` | 11-24 18:00 | historia_en_marcha | 48 s | 1.430 | 30 % | 43 % | 1.7 | 4.2 | 1.438 vistas (72h) |
 | `2026-11-24-cuida-a-los-que-amo` | 11-25 20:00 | oracion_primera_persona | 37 s | 1.241 | 38 % | 27 % | 0.9 | 12.0 | 1.241 vistas (24h) |
 | `2026-11-24-estoy-bien` | 11-26 22:31 | oracion_primera_persona | 38 s | — | — | — | — | — | 1.231 vistas (3h) |
-| `2026-11-24-no-me-puedo-perdonar` | 11-27 18:01 | dialogo_queja | 27 s | — | — | — | — | — | 682 vistas (1h) |
+| `2026-11-24-no-me-puedo-perdonar` | 11-27 18:01 | dialogo_queja | 27 s | — | — | — | — | — | 2.391 vistas (3h) |
 
 ⚠ = salió más de 45 min fuera de su hora programada: cuenta para aprender del contenido, no de los horarios. ≈ = sin medición de 24 h; se usa la de ~48 h (video anterior al sistema).
 
