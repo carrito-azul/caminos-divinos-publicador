@@ -6,7 +6,7 @@ Lo escribe solo la nube (GitHub) cada vez que llega una medición nueva. **No lo
 
 ## Dónde estamos
 - **Récord del sistema:** `2026-11-24-no-me-puedo-perdonar` con 2.391 reproducciones (medición 3h). Gancho: «Jesús, Tú ya me perdonaste… pero yo no puedo.».
-- **Línea base (Reels de 2026 antes del sistema, 42):** mediana 187 reproducciones, salto 65 %, 9.7 s de reproducción media; el mejor llegó a 2.211.
+- **Línea base (Reels de 2026 antes del sistema, 43):** mediana 202 reproducciones, salto 63 %, 9.3 s de reproducción media; el mejor llegó a 3.412.
 - **Metas por video** (referencia general hasta tener datos propios): salto < 40 %, retención > 50 % del video, ≥ 5 compartidos y ≥ 10 guardados por cada 1.000 cuentas alcanzadas. Los compartidos son lo que más empuja a no seguidores.
 
 ## Cada video
