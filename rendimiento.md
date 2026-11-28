@@ -65,7 +65,7 @@ Versión en láminas de un Reel de herramienta, 2 días después. Su trabajo es 
 | Carrusel | Salió | Alcance 24 h | Guard./1.000 | Compart./1.000 | Su Reel: guard./1.000 |
 |---|---|---|---|---|---|
 | `2026-11-15-lista-de-manana-carrusel` | 11-18 10:01 | 2 | 0.0 | 0.0 | 14.2 |
-| `2026-11-24-estoy-bien-carrusel` | programado 2026-11-28 10:00 | — | — | — | 8.6 |
+| `2026-11-24-estoy-bien-carrusel` | 11-28 10:01 | — | — | — | 8.6 |
 
 ## Qué decisión funciona mejor
 
